@@ -18,6 +18,14 @@ OBJCOPY_BIN :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 Core/Src \
+Core/Src/esp8266 \
+Core/Src/mqtt_client \
+Core/Src/sen0161 \
+Core/Src/sen0165 \
+Core/Src/sen0169 \
+Core/Src/sen0189 \
+Core/Src/ssd1306 \
+Core/Src/util \
 Core/Startup \
 Drivers/STM32L4xx_HAL_Driver/Src \
 
