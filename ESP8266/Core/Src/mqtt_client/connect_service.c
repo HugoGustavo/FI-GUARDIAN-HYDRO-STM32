@@ -52,14 +52,14 @@ connect* connect_service_read(connect_service* connect_service){
 
 void connect_service_write(connect_service* connect_service, connect* connect){
 	if ( connect_service == NULL || connect == NULL ) return;
-	    session* session = session_get_instance();
-	    if ( ! session_is_connected(session) ){
-	        char* host = session_get_host(session);
-	        unsigned int port = session_get_port(session);
-	        control_packet_proxy_connect(connect_service->control_packet_proxy, host, port);
-	        bool connected = control_packet_proxy_is_connected(connect_service->control_packet_proxy);
-	        session_set_connected(session, connected);
-	    }
-	    bytes* bytes = connect_to_bytes(connect);
-	    control_packet_proxy_write(connect_service->control_packet_proxy, bytes);
+	session* session = session_get_instance();
+	if ( ! session_is_connected(session) ){
+		char* host = session_get_host(session);
+		unsigned int port = session_get_port(session);
+		control_packet_proxy_connect(connect_service->control_packet_proxy, host, port);
+		bool connected = control_packet_proxy_is_connected(connect_service->control_packet_proxy);
+		session_set_connected(session, connected);
+	}
+	bytes* bytes = connect_to_bytes(connect);
+	control_packet_proxy_write(connect_service->control_packet_proxy, bytes);
 }

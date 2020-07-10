@@ -20,8 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <sen0189/sen0189.h>
-#include <util/logger.h>
+#include "app.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -74,8 +73,7 @@ static void MX_USART2_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void){
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -84,7 +82,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
 
   /* USER CODE BEGIN Init */
 
@@ -105,20 +102,12 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  //app_init();
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  sen0189* sen0189 = sen0189_init(&hadc1);
-  char buffer[20];
+  app_init();
   while (1){
-	  float phValue = sen0189_read(sen0189);
-	  gcvt(phValue, 2, buffer);
-	  logger_trace(logger_get_instance(), buffer);
+	  app_measure();
+	  app_send();
+	  app_wait();
   }
-  /* USER CODE END 3 */
 }
 
 /**
@@ -358,6 +347,12 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ESP_POWER_EN_GPIO_Port, ESP_POWER_EN_Pin, GPIO_PIN_SET);
 
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   /*Configure GPIO pin : ESP_EN_Pin */
   GPIO_InitStruct.Pin = ESP_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -398,7 +393,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(char *file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,

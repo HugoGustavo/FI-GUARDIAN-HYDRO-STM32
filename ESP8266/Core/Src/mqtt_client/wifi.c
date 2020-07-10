@@ -25,7 +25,7 @@ void wifi_connect(wifi* wifi, char* ip, unsigned int port){
 		return;
 	}
 
-	wifi->connected = esp8266_createTCP(wifi->esp8266, (uint8_t*) ip, (uint8_t) port);
+	wifi->connected = esp8266_createTCP(wifi->esp8266, (uint8_t*) ip, (uint16_t) port);
 }
 
 void wifi_disconnect(wifi* wifi){
@@ -57,7 +57,7 @@ void wifi_write(wifi* wifi, bytes* bytes){
         return;
     }
 
-    uint8_t* array =bytes_to_array(bytes);
+    uint8_t* array = bytes_to_array(bytes);
     uint16_t size = bytes_get_size(bytes);
     esp8266_send(wifi->esp8266, array, size);
     esp8266_send(wifi->esp8266, array, size);

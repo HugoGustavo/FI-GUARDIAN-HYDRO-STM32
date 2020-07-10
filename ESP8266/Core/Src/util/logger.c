@@ -1,5 +1,4 @@
-#include "../../Inc/util/logger.h"
-
+#include <util/logger.h>
 
 logger* logger_instance = NULL;
 
@@ -69,4 +68,9 @@ void logger_debug(logger* logger, char* input){
 	unsigned int line = (++logger->line) % LOGGER_MAX_LINES;
 	SSD1306_Goto(0, line);
 	SSD1306_Write_String((uint8_t*) string_util_concat("[D] ", input));
+}
+
+void logger_clean(logger* logger){
+	if( logger == NULL ) return;
+	SDD1306_Clear_Screen();
 }

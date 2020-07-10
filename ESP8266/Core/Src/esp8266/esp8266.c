@@ -1,35 +1,28 @@
 #include <esp8266/esp8266.h>
 
 esp8266* esp8266_init(void){
+	// app_init
 	hw_esp_power_set(true);
 	hw_time_sleep(100);
+	hw_uart_init();
 
-    hw_esp_power_set(true);
+	// iot_on
+	// WifiOn
+	hw_esp_power_set(true);
     hw_esp_reset_set(false);
     hw_esp_enable_set(true);
+
+    // iot_on
     hw_time_sleep(1000);
     at_init();
 
-
-	// do not expect so much from this command as we can be at
-	// some wrong baud rate
-    //	cmd.id = AT_CMD_UART;
-    //	cmd.payload.uart.baud_rate = 115200;
-    //	cmd.payload.uart.data_bits = 8;
-    //	cmd.payload.uart.stop_bit = 1;
-    //	cmd.payload.uart.parity = 0;
-    //	cmd.payload.uart.flow_control = 0;
-    //	at_send_cmd_blocking(&cmd,1000);
-
-	// first command after changing serial baud rate fails...
 	cmd.id = AT_CMD_READY;
 	at_send_cmd_blocking(&cmd,1000);
 
 	cmd.id = AT_CMD_READY;
 	at_send_cmd_blocking(&cmd,3000);
 
-	if(cmd.status != AT_STATUS_OK)
-		return NULL;
+	if(cmd.status != AT_STATUS_OK)		return NULL;
 
 	cmd.id = AT_CMD_WIFI_AUTO_CON;
 	cmd.payload.wifi_autocon.enabled = 0;
@@ -59,14 +52,14 @@ void esp8266_setOprToStationSoftAP(esp8266* esp8266){
     at_send_cmd_blocking(&cmd,2000);
 }
 
-bool esp8266_joinAP(esp8266* esp8266, uint8_t* 	ssid, uint8_t* password){
+bool esp8266_joinAP(esp8266* esp8266, uint8_t* ssid, uint8_t* password){
 	if( esp8266 == NULL ) return false;
 
 	cmd.id = AT_CMD_WIFI_AP_SET;
 	cmd.payload.wifi_ap.ssid = ssid;
 	cmd.payload.wifi_ap.pwd = password;
-	at_send_cmd_blocking(&cmd, 30000);
 
+	at_send_cmd_blocking(&cmd, 30000);
 	if( cmd.status != AT_STATUS_OK ) return false;
 
 	cmd.id = AT_CMD_SLL_BUFFER_SIZE;
@@ -99,7 +92,7 @@ bool esp8266_createTCP(esp8266* esp8266, uint8_t* ip, uint16_t port){
 
 	cmd.id = AT_CMD_CON_START;
 	cmd.payload.con_start.port = port;
-	cmd.payload.con_start.transport = (uint8_t *) "TCP";
+	cmd.payload.con_start.transport = (uint8_t*) "TCP";
 	cmd.payload.con_start.site = ip;
 	cmd.payload.con_start.channel = 0;
 	at_send_cmd_blocking(&cmd, 10000);
