@@ -3,8 +3,9 @@
 char*                   SMART_WATER_PROPERTIES_SMART_WATER_ID                       = (char*) "python_test";
 uint8_t* 	            SMART_WATER_PROPERTIES_SSID                                 = (uint8_t*) "LAPTOP-SE6C11TJ1937";
 uint8_t* 	            SMART_WATER_PROPERTIES_PASSWORD_SSID                        = (uint8_t*) "5hB6;261";
-char* 	            	SMART_WATER_PROPERTIES_API_GATEWAY_ADDRESS                  = (char*) "192.168.137.211";
-uint16_t 	            SMART_WATER_PROPERTIES_API_GATEWAY_PORT                     = 1883;
+char* 	            	SMART_WATER_PROPERTIES_API_GATEWAY_HOST 					= (char*) "192.168.137.211";
+uint16_t 	            SMART_WATER_PROPERTIES_API_GATEWAY_PORT                     = (uint16_t) 1883;
+char* 	            	SMART_WATER_PROPERTIES_API_GATEWAY_CHANNEL                  = (char*) "request";
 char*                   SMART_WATER_PROPERTIES_REPLY_HOST                           = (char*) "192.168.137.211";
 char*                   SMART_WATER_PROPERTIES_REPLY_PORT                           = (char*) "1883";
 char*                   SMART_WATER_PROPERTIES_REPLY_CHANNEL                        = (char*) "response";

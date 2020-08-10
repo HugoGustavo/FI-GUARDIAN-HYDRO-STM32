@@ -107,11 +107,15 @@ bytes* publish_to_bytes(publish* publish){
 	    bytes_concat(variable_header, packet_identifier_field);
 	}
 
+	// The length of the payload can be calculated by subtracting the length of the variable header from the Remaining Length field that is in the Fixed Header
+	// so there's no need to add the field size
 	bytes* payload = bytes_init();
-	if ( ! string_util_is_empty(publish->payload) )
-		bytes_concat(payload, packet_util_build_bytes(publish->payload));
-
-	control_packet_set_remaining_length(publish->control_packet, bytes_get_size(variable_header) + bytes_get_size(payload) );
+	if ( ! string_util_is_empty(publish->payload) ){
+		unsigned int length = string_util_length(publish->payload);
+		for(int i = 0; i < length; i++) bytes_push_back(payload, (unsigned char) publish->payload[i] );
+		//bytes_concat(payload, packet_util_build_bytes(publish->payload));
+	}
+	control_packet_set_remaining_length(publish->control_packet, (long int) bytes_get_size(variable_header) + bytes_get_size(payload) );
 
 	bytes* result = control_packet_to_bytes(publish->control_packet);
 	bytes_concat(result, variable_header);

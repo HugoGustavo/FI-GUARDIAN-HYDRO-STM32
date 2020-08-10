@@ -28,13 +28,13 @@ void configure_esp(void){
 	esp8266_setOprToStationSoftAP(esp);
 	esp8266_enableMUX(esp);
 	esp8266_joinAP(esp, SMART_WATER_PROPERTIES_SSID, SMART_WATER_PROPERTIES_PASSWORD_SSID);
-	esp8266_createTCP(esp, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_ADDRESS, SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
+	esp8266_createTCP(esp, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_HOST, SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
 }
 
 void configure_mqtt_client(void){
 	logger_info(logger_get_instance(), (char*) "Conectando ao Gateway");
 	mqtt = mqtt_client_init(esp);
-	mqtt_client_connect(mqtt, SMART_WATER_PROPERTIES_SMART_WATER_ID, SMART_WATER_PROPERTIES_API_GATEWAY_ADDRESS, SMART_WATER_PROPERTIES_API_GATEWAY_PORT, 60, true);
+	mqtt_client_connect(mqtt, SMART_WATER_PROPERTIES_SMART_WATER_ID, SMART_WATER_PROPERTIES_API_GATEWAY_HOST, SMART_WATER_PROPERTIES_API_GATEWAY_PORT, 60, true);
 }
 
 void configure_ds18b20(void){
@@ -135,7 +135,7 @@ void app_measure(void){
 
 void app_send(void){
 	unsigned char MQTT_QOS_LEVEL = QOS_LEVEL == 0x00 || QOS_LEVEL == 0x01 || QOS_LEVEL == 0x02 ? QOS_LEVEL : 0x00;
-	mqtt_client_publish(mqtt, (char*) "request", (char*) message, MQTT_QOS_LEVEL, false);
+	mqtt_client_publish(mqtt, (char*) SMART_WATER_PROPERTIES_API_GATEWAY_CHANNEL, (char*) message, MQTT_QOS_LEVEL, false);
 	free(message);
 	message = NULL;
 }
