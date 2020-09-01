@@ -3,18 +3,14 @@
 
 disconnect* disconnect_init(){
 	disconnect* result = (disconnect*) malloc(sizeof(disconnect));
-	if( result == NULL ) return NULL;
 	result->control_packet = control_packet_init(CONTROL_PACKET_TYPE_DISCONNECT, CONTROL_PACKET_FLAG_DISCONNECT, 0x00);
-	if( result->control_packet == NULL ){
-		disconnect_destroy(result);
-		return NULL;
-	}
-
 	control_packet_set_remaining_length(result->control_packet, 0x00);
 	return result;
 }
 
 void disconnect_destroy(disconnect* disconnect){
+	if( disconnect == NULL ) return;
+	disconnect->control_packet = NULL;
 	free(disconnect);
 	disconnect = NULL;
 }

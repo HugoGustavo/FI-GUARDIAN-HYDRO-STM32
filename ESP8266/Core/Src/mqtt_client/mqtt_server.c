@@ -2,18 +2,37 @@
 
 mqtt_server* mqtt_server_init(){
 	mqtt_server* result = (mqtt_server*) malloc(sizeof(mqtt_server));
-	if( result == NULL ) return NULL;
 	result->connect 	= NULL;
 	result->connack 	= NULL;
 	result->publish 	= NULL;
 	result->pub_rec 	= NULL;
 	result->pub_rel 	= NULL;
 	result->pub_comp 	= NULL;
+
 	return result;
 }
 
 void mqtt_server_destroy(mqtt_server* mqtt_server){
 	if( mqtt_server == NULL ) return;
+
+	connect_destroy(mqtt_server->connect);
+	mqtt_server->connect = NULL;
+
+	connack_destroy(mqtt_server->connack);
+	mqtt_server->connack = NULL;
+
+	publish_destroy(mqtt_server->publish);
+	mqtt_server->publish = NULL;
+
+	pub_rec_destroy(mqtt_server->pub_rec);
+	mqtt_server->pub_rec = NULL;
+
+	pub_rel_destroy(mqtt_server->pub_rel);
+	mqtt_server->pub_rel = NULL;
+
+	pub_comp_destroy(mqtt_server->pub_comp);
+	mqtt_server->pub_comp = NULL;
+
 	free(mqtt_server);
 	mqtt_server = NULL;
 }

@@ -10,6 +10,8 @@ node* node_init(const unsigned char value, node* previous, node* next){
 
 void node_destroy(node* node){
 	if( node == NULL ) return;
+	node->previous = NULL;
+	node->next = NULL;
 	free(node);
 	node = NULL;
 }
@@ -23,6 +25,17 @@ bytes* bytes_init(){
 }
 
 void bytes_destroy(bytes* bytes){
+	if( bytes == NULL ) return;
+
+	node* next = NULL;
+	node* actual = bytes->front;
+	while( actual != NULL ){
+		next = actual->next;
+		node_destroy(actual);
+		actual = next;
+	}
+	bytes->front = NULL;
+	bytes->back = NULL;
 	free(bytes);
 	bytes = NULL;
 }

@@ -1,17 +1,17 @@
 #include <sen0237a/sen0237a.h>
 
-sen0237a* sen0237a_init(ADC_HandleTypeDef* pin,  bool mode_calibration){
-	sen0237a* result 					= (sen0237a*) malloc(sizeof(sen0237a));
+sen0237a* sen0237a_init(ADC_HandleTypeDef* pin, uint32_t channel, bool mode_calibration){
+	sen0237a* result = (sen0237a*) malloc(sizeof(sen0237a));
 
-	result->pin 						= pin;
+	result->pin 							= pin;
+	result->channel						= channel;
 	result->mode_calibration 			= mode_calibration;
 	result->saturation_do_voltage 		= 1127.6;
 	result->saturation_do_temperature 	= 25.0;
-	result->average_voltage 			= 0.0;
-	result->temperature 				= 0.0;
+	result->average_voltage 				= 0.0;
+	result->temperature 					= 0.0;
 	result->index						= 0;
 
-	result->readings					= (int*) malloc(30*sizeof(int));
 	for(int i = 0; i < 30; i++) result->readings[i] = 0;
 
 	return result;
@@ -72,6 +72,15 @@ ADC_HandleTypeDef* sen0237a_get_pin(sen0237a* sen0237a){
 	return sen0237a == NULL ? NULL : sen0237a->pin;
 }
 
+uint32_t sen0237a_get_channel(sen0237a* sen0237a){
+	return sen0237a == NULL ? 0 : sen0237a->pin;
+}
+
+void sen0237a_set_channel(sen0237a* sen0237a, uint32_t channel){
+	if( sen0237a == NULL ) return;
+	sen0237a->channel = channel;
+}
+
 void sen0237a_set_pin(sen0237a* sen0237a, ADC_HandleTypeDef* pin){
 	if( sen0237a == NULL ) return;
 	sen0237a->pin = pin;
@@ -81,9 +90,10 @@ int* sen0237a_get_readings(sen0237a* sen0237a){
 	return sen0237a == NULL ? NULL : sen0237a->readings;
 }
 
-void sen0237a_set_readings(sen0237a* sen0237a, int* readings){
+void sen0237a_set_readings(sen0237a* sen0237a, int readings[]){
 	if( sen0237a == NULL ) return;
-	sen0237a->readings = readings;
+	for(int i = 0; i < 30; i++)
+		sen0237a->readings[i] = readings[i];
 }
 
 int sen0237a_get_index(sen0237a* sen0237a){
@@ -99,7 +109,7 @@ float sen0237a_read(sen0237a* sen0237a){
 	if ( ! sen0237a_is_mode_calibration(sen0237a) ){
 		int index = sen0237a_get_index(sen0237a);
 		int* readings = sen0237a_get_readings(sen0237a);
-		readings[index] = stm32_util_read_analog(sen0237a_get_pin(sen0237a));
+		readings[index] = stm32_util_read_analog(sen0237a_get_pin(sen0237a), sen0237a_get_channel(sen0237a));
 		sen0237a_set_index(sen0237a, (index + 1 ) % 30);
 		sen0237a_set_average_voltage(sen0237a, sen0237a_median(sen0237a) * (float) 5000 / 1024.0);
 		float dissolved_oxygen_value = ( SEN0237A_SATURATION_VALUE + (int)(sen0237a_get_saturation_do_temperature(sen0237a)+0.5) ) * sen0237a_get_average_voltage(sen0237a) / sen0237a_get_saturation_do_voltage(sen0237a);
@@ -115,7 +125,7 @@ void sen0237a_do_calibration(sen0237a* sen0237a){
 }
 
 int sen0237a_median(sen0237a* sen0237a){
-	int* readings_temp = (int*) malloc(30*sizeof(int));
+	int readings_temp[30];
 	int* readings = sen0237a_get_readings(sen0237a);
 	for(int i = 0; i < 30; i++) readings_temp[i] = readings[i];
 
@@ -131,8 +141,6 @@ int sen0237a_median(sen0237a* sen0237a){
 	}
 
 	int median = ( readings_temp[14] + readings_temp[15]) / 2;
-	free(readings_temp);
-	readings_temp = NULL;
 
 	return median;
 }

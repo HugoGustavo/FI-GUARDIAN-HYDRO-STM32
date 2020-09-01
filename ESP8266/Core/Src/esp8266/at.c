@@ -214,8 +214,8 @@ at_status_t at_send_cmd_blocking(at_cmd_t* cmd, uint32_t tmrout_ms){
         }
 
         case AT_CMD_CON_CLOSE: {
-            uint8_t val[10];
             if(cmd->payload.con_close.channel >= 0){
+            	uint8_t val[10];
                 sprintf((char*)val, "=%d", cmd->payload.con_close.channel);
                 hw_serial_tx(val, strlen((char*)val));
             }
@@ -264,7 +264,6 @@ at_status_t at_send_cmd_blocking(at_cmd_t* cmd, uint32_t tmrout_ms){
             cmd->status = AT_STATUS_NO_ANSWER;
             break;
     }
-
     return AT_STATUS_OK;
 }
 

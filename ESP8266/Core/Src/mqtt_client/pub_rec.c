@@ -10,6 +10,9 @@ pub_rec* pub_rec_init(unsigned int packet_identifier){
 
 void pub_rec_destroy(pub_rec* pub_rec){
 	if( pub_rec == NULL ) return;
+
+	pub_rec->control_packet = NULL;
+
 	free(pub_rec);
 	pub_rec = NULL;
 }
@@ -30,6 +33,7 @@ bytes* pub_rec_to_bytes(pub_rec* pub_rec){
 
     bytes* result = control_packet_to_bytes(pub_rec->control_packet);
     bytes_concat(result, packet_identifier);
+    bytes_destroy(packet_identifier);
     return result;
 }
 

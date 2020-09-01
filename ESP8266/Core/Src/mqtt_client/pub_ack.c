@@ -10,6 +10,9 @@ pub_ack* pub_ack_init(unsigned int packet_identifier){
 
 void pub_ack_destroy(pub_ack* pub_ack){
 	if( pub_ack == NULL ) return;
+
+	pub_ack->control_packet = NULL;
+
 	free(pub_ack);
 	pub_ack = NULL;
 }
@@ -32,6 +35,7 @@ bytes* pub_ack_to_bytes(pub_ack* pub_ack){
 
     bytes* result = control_packet_to_bytes(pub_ack->control_packet);
     bytes_concat(result, packet_identifier);
+    bytes_destroy(packet_identifier);
 
     return result;
 }

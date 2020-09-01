@@ -43,13 +43,28 @@ connect* connect_init(const bool username, const bool password, const bool will_
 	bytes_push_back( result->variable_header, flags);
 	result->keep_alive = keep_alive;
 
+	result->will_topic = NULL;
+	result->will_message = NULL;
+	result->username = NULL;
+	result->password = NULL;
+
 	return result;
 }
 
 void connect_destroy(connect* connect){
 	if(connect == NULL) return;
-	control_packet_destroy(connect->control_packet);
+
 	connect->control_packet = NULL;
+
+	bytes_destroy(connect->variable_header);
+
+	connect->variable_header = NULL;
+	connect->client_identifier = NULL;
+	connect->will_topic = NULL;
+	connect->will_message = NULL;
+	connect->username = NULL;
+	connect->password = NULL;
+
 	free(connect);
 	connect = NULL;
 }
@@ -125,13 +140,15 @@ bytes* connect_to_bytes(connect* connect){
 	char* client_identifier = connect_get_client_identifier(connect);
 	if ( ! string_util_is_empty(client_identifier) ){
 		if ( string_util_length(client_identifier) >= 24 ){ // Deve ter no maximo 23 caracteres
-			char* client_identifier_sub_string = string_util_build_empty_string(23);
+			char* client_identifier_sub_string = string_util_build_empty_string(23+1);
 			string_util_copy(client_identifier_sub_string, client_identifier, 23);
 			bytes* client_identifier_bytes = packet_util_build_bytes(client_identifier_sub_string);
 			bytes_concat(payload, client_identifier_bytes);
+			bytes_destroy(client_identifier_bytes);
 		} else {
 			bytes* client_identifier_bytes = packet_util_build_bytes(client_identifier);
 			bytes_concat(payload, client_identifier_bytes);
+			bytes_destroy(client_identifier_bytes);
 		}
 	}
 
@@ -140,11 +157,13 @@ bytes* connect_to_bytes(connect* connect){
 	if ( ( flags & ( 0x01 << 2 ) ) && ! string_util_is_empty(connect->will_topic) ){
 		bytes* will_topic_bytes = packet_util_build_bytes(connect->will_topic);
 		bytes_concat(payload, will_topic_bytes);
+		bytes_destroy(will_topic_bytes);
 	}
 
 	if ( ( flags & ( 0x01 << 2 ) ) && ! string_util_is_empty(connect->will_message) ){
 		bytes* will_message_bytes = packet_util_build_bytes(connect->will_message);
 		bytes_concat(payload, will_message_bytes);
+		bytes_destroy(will_message_bytes);
 	}
 
 	if ( ( flags & ( 0x01 << 7 ) ) && ! string_util_is_empty(connect->username) ){
@@ -153,7 +172,9 @@ bytes* connect_to_bytes(connect* connect){
 	    if ( ( flags & ( 0x01 << 6 ) ) && ! string_util_is_empty(connect->password) ){
 	    	bytes* password_bytes = packet_util_build_bytes(connect->password);
 	    	bytes_concat(payload, password_bytes);
+	    	bytes_destroy(password_bytes);
 	    }
+	    bytes_destroy(username_bytes);
 	}
 
 	long int remaining_length = bytes_get_size(connect->variable_header) + bytes_get_size(payload) + sizeof(connect->keep_alive);
@@ -164,6 +185,7 @@ bytes* connect_to_bytes(connect* connect){
 	bytes_push_back( result, (unsigned char) ( (connect->keep_alive & 0xFF00) >> 8) );
 	bytes_push_back( result, (unsigned char) ( (connect->keep_alive & 0x00FF) ) );
 	bytes_concat( result, payload);
+	bytes_destroy(payload);
 	return result;
 }
 

@@ -4,13 +4,13 @@
 publish_service* publish_service_init(control_packet_proxy* control_packet_proxy){
 	if( control_packet_proxy == NULL ) return NULL;
 	publish_service* result = (publish_service*) malloc(sizeof(publish_service));
-	if( result == NULL ) return NULL;
 	result->control_packet_proxy = control_packet_proxy;
 	return result;
 }
 
 void publish_service_destroy(publish_service* publish_service){
 	if( publish_service == NULL ) return;
+	publish_service->control_packet_proxy = NULL;
 	free(publish_service);
 	publish_service = NULL;
 }
@@ -41,6 +41,7 @@ publish* publish_service_read(publish_service* publish_service){
 	if( publish_service == NULL ) return NULL;
 	bytes* bytes = control_packet_proxy_read(publish_service->control_packet_proxy);
 	publish* publish = bytes_is_empty(bytes) ? NULL : assembler_build_to_publish(bytes);
+	bytes_destroy(bytes);
 	return publish;
 }
 
@@ -48,5 +49,6 @@ void publish_service_write(publish_service* publish_service, publish* publish){
 	if ( publish_service == NULL ||  publish == NULL ) return;
 	bytes* bytes = publish_to_bytes(publish);
 	control_packet_proxy_write(publish_service->control_packet_proxy, bytes);
+	bytes_destroy(bytes);
 }
 

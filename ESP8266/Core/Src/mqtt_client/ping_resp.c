@@ -9,6 +9,9 @@ ping_resp* ping_resp_init(){
 
 void ping_resp_destroy(ping_resp* ping_resp){
 	if( ping_resp == NULL ) return;
+
+	ping_resp->control_packet = NULL;
+
 	free(ping_resp);
 	ping_resp = NULL;
 }

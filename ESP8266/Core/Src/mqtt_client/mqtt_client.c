@@ -1,4 +1,5 @@
 #include "../../Inc/mqtt_client/mqtt_client.h"
+#include <configuration/properties.h>
 
 unsigned char MQTT_CLIENT_QOS_LEVEL_0 = 0x00;
 
@@ -11,7 +12,6 @@ mqtt_client* mqtt_client_init(esp8266* esp8266){
 	if( esp8266 == NULL ) return NULL;
 
 	mqtt_client* result = (mqtt_client*) malloc(sizeof(mqtt_client));
-	if ( result == NULL ) return NULL;
 
 	result->wifi 					= wifi_init(esp8266, 1000);
 	result->ping_req_service 		= ping_req_service_init(result->wifi);
@@ -21,11 +21,11 @@ mqtt_client* mqtt_client_init(esp8266* esp8266){
 	result->connect_service			= connect_service_init(result->control_packet_proxy);
 	result->disconnect_service		= disconnect_service_init(result->control_packet_proxy);
 	result->pub_ack_service			= pub_ack_service_init(result->control_packet_proxy);
-	result->pub_comp_service		= pub_comp_service_init(result->control_packet_proxy);
+	result->pub_comp_service			= pub_comp_service_init(result->control_packet_proxy);
 	result->publish_service			= publish_service_init(result->control_packet_proxy);
 	result->pub_rec_service			= pub_rec_service_init(result->control_packet_proxy);
 	result->pub_rel_service			= pub_rel_service_init(result->control_packet_proxy);
-	result->mqtt_service			= mqtt_service_init(result->control_packet_proxy, result->connack_service, result->connect_service, result->disconnect_service, result->pub_ack_service, result->pub_comp_service, result->publish_service, result->pub_rec_service, result->pub_rel_service);
+	result->mqtt_service				= mqtt_service_init(result->control_packet_proxy, result->connack_service, result->connect_service, result->disconnect_service, result->pub_ack_service, result->pub_comp_service, result->publish_service, result->pub_rec_service, result->pub_rel_service);
 
 	if( result->wifi == NULL || result->ping_req_service == NULL || result->ping_resp_service == NULL ||
 		result->control_packet_proxy == NULL || result->connack_service == NULL || result->connect_service == NULL ||
@@ -63,6 +63,7 @@ void mqtt_client_destroy(mqtt_client* mqtt_client){
 
 void mqtt_client_connect(mqtt_client* mqtt_client, char* id, char* host, unsigned int port, unsigned int keep_alive, bool clean_session){
 	if( mqtt_client == NULL ) return;
+	wifi_connect(mqtt_client->wifi, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_HOST, SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
 	mqtt_service_connect(mqtt_client->mqtt_service, id, host, port, keep_alive, clean_session);
 }
 
@@ -74,4 +75,5 @@ void mqtt_client_publish(mqtt_client* mqtt_client, char* topic, char* payload, u
 void mqtt_client_disconnect(mqtt_client* mqtt_client){
 	if( mqtt_client == NULL ) return;
 	mqtt_service_disconnect(mqtt_client->mqtt_service);
+	wifi_disconnect(mqtt_client->wifi);
 }

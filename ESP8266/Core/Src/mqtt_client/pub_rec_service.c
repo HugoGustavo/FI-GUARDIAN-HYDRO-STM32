@@ -10,7 +10,7 @@ pub_rec_service* pub_rec_service_init(control_packet_proxy* control_packet_proxy
 
 void pub_rec_service_destroy(pub_rec_service* pub_rec_service){
 	if( pub_rec_service == NULL ) return;
-	free(pub_rec_service);
+	pub_rec_service->control_packet_proxy = NULL;
 	pub_rec_service = NULL;
 }
 
@@ -26,6 +26,7 @@ pub_rec* pub_rec_service_read(pub_rec_service* pub_rec_service){
 	if( pub_rec_service == NULL ) return NULL;
 	bytes* bytes = control_packet_proxy_read(pub_rec_service->control_packet_proxy);
 	pub_rec* pub_rec = bytes_is_empty(bytes) ? NULL : assembler_build_to_pub_rec(bytes);
+	bytes_destroy(bytes);
     return pub_rec;
 }
         
@@ -33,4 +34,5 @@ void pub_rec_service_write(pub_rec_service* pub_rec_service, pub_rec* pub_rec){
     if ( pub_rec == NULL ) return;
     bytes* bytes = pub_rec_to_bytes(pub_rec);
     control_packet_proxy_write(pub_rec_service->control_packet_proxy, bytes);
+    bytes_destroy(bytes);
 }

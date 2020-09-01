@@ -15,6 +15,8 @@ bytes* packet_util_build_bytes(char* input){
 	return result;
 }
 
+
+
 char* packet_util_build_string(bytes* bytes, unsigned int* from){
 	unsigned int msb_length = (unsigned int) ( bytes_at(bytes, *from) << 8);
 	unsigned int lsb_length = (unsigned int) (bytes_at(bytes, (*from)+1));

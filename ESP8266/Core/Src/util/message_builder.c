@@ -10,7 +10,7 @@ message_builder* message_builder_get_instance(){
 		instance->reply_channel = NULL;
 		instance->method = NULL;
 		instance->uri = NULL;
-		instance->header = map_string_init();
+		instance->header = NULL;
 		instance->body = map_string_init();
 	}
 	return instance;
@@ -61,19 +61,47 @@ message_builder* message_builder_put_body(message_builder* message_builder, char
 char* message_builder_build(message_builder* message_builder){
 	if( message_builder == NULL ) return NULL;
 
-	char* message = (char*) malloc(4096*sizeof(char));
+	char* message = (char*) malloc(256*sizeof(char)); message[0] = '\0';
 	message[0] = '{';
 	message[1] = '\0';
 
 	//strcat(message, "{");
-	strcat(message, "\"replyHost\":\""); strcat(message, message_builder->reply_host); strcat(message, "\",");
-	strcat(message, "\"replyPort\":"); strcat(message, message_builder->reply_port); strcat(message, ",");
-	strcat(message, "\"replyChannel\":\""); strcat(message, message_builder->reply_channel); strcat(message, "\",");
-	strcat(message, "\"method\":\""); strcat(message, message_builder->method); strcat(message, "\",");
-	strcat(message, "\"uri\":\""); strcat(message, message_builder->uri); strcat(message, "\",");
-	strcat(message, "\"header\":"); strcat(message, map_string_to_char(message_builder->header)); strcat(message, ",");
-	strcat(message, "\"body\":"); strcat(message, map_string_to_char(message_builder->body));
-	strcat(message, "}");
+	strcat(message, (char*) "\"replyHost\":\""); strcat(message, message_builder->reply_host); strcat(message, (char*) "\",");
+	strcat(message, (char*) "\"replyPort\":"); strcat(message, message_builder->reply_port); strcat(message, (char*) ",");
+	strcat(message, (char*) "\"replyChannel\":\""); strcat(message, message_builder->reply_channel); strcat(message, (char*) "\",");
+	strcat(message, (char*) "\"method\":\""); strcat(message, message_builder->method); strcat(message, (char*) "\",");
+	strcat(message, (char*) "\"uri\":\""); strcat(message, message_builder->uri); strcat(message, "\",");
+	strcat(message, (char*) "\"header\":"); strcat(message, "{}"); strcat(message, (char*) ",");
+	strcat(message, (char*) "\"body\":"); strcat(message, map_string_to_char(message_builder->body));
+	strcat(message, (char*) "}");
 	message[strlen(message)] = '\0';
 	return message;
+}
+
+void message_builder_destroy(){
+	if( instance == NULL ) return;
+
+	//free(instance->reply_host);
+	instance->reply_host = NULL;
+
+	//free(instance->reply_port);
+	instance->reply_port = NULL;
+
+	//free(instance->reply_channel);
+	instance->reply_channel = NULL;
+
+	//free(instance->method);
+	instance->method = NULL;
+
+	//free(instance->uri);
+	instance->uri = NULL;
+
+	map_string_destroy(instance->header);
+	instance->header = NULL;
+
+	map_string_destroy(instance->body);
+	instance->body = NULL;
+
+	free(instance);
+	instance = NULL;
 }

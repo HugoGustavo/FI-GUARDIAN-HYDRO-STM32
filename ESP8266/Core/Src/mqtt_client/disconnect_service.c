@@ -4,13 +4,13 @@
 disconnect_service* disconnect_service_init(control_packet_proxy* control_packet_proxy){
 	if( control_packet_proxy == NULL ) return NULL;
 	disconnect_service* result = (disconnect_service*) malloc(sizeof(disconnect_service));
-	if( result == NULL ) return NULL;
 	result->control_packet_proxy = control_packet_proxy;
 	return result;
 }
 
 void disconnect_service_destroy(disconnect_service* disconnect_service){
 	if( disconnect_service == NULL ) return;
+	disconnect_service->control_packet_proxy = NULL;
 	free(disconnect_service);
 	disconnect_service = NULL;
 }
@@ -24,6 +24,7 @@ disconnect* disconnect_service_read(disconnect_service* disconnect_service){
 	if( disconnect_service == NULL ) return NULL;
 	bytes* bytes = control_packet_proxy_read(disconnect_service->control_packet_proxy);
 	disconnect* disconnect = bytes_is_empty(bytes) ? NULL : disconnect_init(bytes);
+	bytes_destroy(bytes);
 	return disconnect;
 }
 
@@ -34,4 +35,5 @@ void disconnect_service_write(disconnect_service* disconnect_service, disconnect
 	control_packet_proxy_disconnect(disconnect_service->control_packet_proxy);
 	session* session = session_get_instance();
 	session_reset(session);
+	bytes_destroy(bytes);
 }

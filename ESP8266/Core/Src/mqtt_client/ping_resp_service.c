@@ -4,13 +4,13 @@
 ping_resp_service* ping_resp_service_init(wifi* wifi){
 	if( wifi == NULL ) return NULL;
 	ping_resp_service* result = (ping_resp_service*) malloc(sizeof(ping_resp_service));
-	if( result == NULL ) return NULL;
 	result->wifi = wifi;
 	return result;
 }
 
 void ping_resp_service_destroy(ping_resp_service* ping_resp_service){
 	if( ping_resp_service == NULL ) return;
+	ping_resp_service->wifi = NULL;
 	free(ping_resp_service);
 	ping_resp_service = NULL;
 }
@@ -29,5 +29,7 @@ ping_resp* ping_resp_service_read(ping_resp_service* ping_resp_service){
 
 void ping_resp_service_write(ping_resp_service* ping_resp_service, ping_resp* ping_resp){
 	if( ping_resp == NULL ) return;
-	wifi_write(ping_resp_service->wifi, ping_resp_to_bytes(ping_resp));
+	bytes* bytes = ping_resp_to_bytes(ping_resp);
+	wifi_write(ping_resp_service->wifi, bytes);
+	bytes_destroy(bytes);
 }

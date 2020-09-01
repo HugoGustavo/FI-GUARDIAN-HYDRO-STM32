@@ -8,12 +8,7 @@ unsigned char PUBLISH_QOS_LEVEL_2 = 0x02;
 
 publish* publish_init(bool dup, unsigned char qos_level, bool retain){
 	publish* result = (publish*) malloc(sizeof(publish));
-	if( result == NULL ) return NULL;
 	result->control_packet = control_packet_init(CONTROL_PACKET_TYPE_PUBLISH, CONTROL_PACKET_FLAG_PUBLISH, 0x00);
-	if( result->control_packet == NULL ){
-		publish_destroy(result);
-		return NULL;
-	}
 
 	result->qos_level         = qos_level;
 	result->dup               = result->qos_level == 0x00 ? false : dup;
@@ -31,6 +26,11 @@ publish* publish_init(bool dup, unsigned char qos_level, bool retain){
 
 void publish_destroy(publish* publish){
 	if( publish == NULL ) return;
+
+	publish->control_packet = NULL;
+	publish->topic_name = NULL;
+	publish->payload = NULL;
+
 	free(publish);
 	publish = NULL;
 }
@@ -96,6 +96,7 @@ bytes* publish_to_bytes(publish* publish){
 	if( ! string_util_is_empty(publish->topic_name) ){
 		bytes* topic_name_field = packet_util_build_bytes(publish->topic_name);
 		bytes_concat(variable_header, topic_name_field);
+		bytes_destroy(topic_name_field);
 	}
 
 	if( publish->qos_level == PUBLISH_QOS_LEVEL_1 || publish->qos_level == PUBLISH_QOS_LEVEL_2 ) {
@@ -105,6 +106,7 @@ bytes* publish_to_bytes(publish* publish){
 	    bytes_push_back(packet_identifier_field, msb_packet_identifier);
 	    bytes_push_back(packet_identifier_field, lsb_packet_identifier);
 	    bytes_concat(variable_header, packet_identifier_field);
+	    bytes_destroy(packet_identifier_field);
 	}
 
 	// The length of the payload can be calculated by subtracting the length of the variable header from the Remaining Length field that is in the Fixed Header
@@ -115,11 +117,16 @@ bytes* publish_to_bytes(publish* publish){
 		for(int i = 0; i < length; i++) bytes_push_back(payload, (unsigned char) publish->payload[i] );
 		//bytes_concat(payload, packet_util_build_bytes(publish->payload));
 	}
+
 	control_packet_set_remaining_length(publish->control_packet, (long int) bytes_get_size(variable_header) + bytes_get_size(payload) );
 
 	bytes* result = control_packet_to_bytes(publish->control_packet);
 	bytes_concat(result, variable_header);
 	bytes_concat(result, payload);
+
+	bytes_destroy(variable_header);
+	bytes_destroy(payload);
+
 	return result;
 }
 

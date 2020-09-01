@@ -32,18 +32,11 @@ const unsigned char CONTROL_PACKET_FLAG_DISCONNECT   = 0x00;
 
 control_packet* control_packet_init(const unsigned char type, const unsigned char flags, const long int remaining_length){
 	control_packet* result = (control_packet*) malloc(sizeof(control_packet));
-	if ( result == NULL ) return NULL;
 	result->type 				= type;
 	result->flags 				= flags;
 	result->remaining_length 	= remaining_length;
 
 	return result;
-}
-
-void control_packet_destroy(control_packet* control_packet){
-	if( control_packet == NULL ) return;
-	free(control_packet);
-	control_packet = NULL;
 }
 
 unsigned char control_packet_get_type(control_packet* control_packet){

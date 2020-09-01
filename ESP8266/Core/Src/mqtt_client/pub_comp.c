@@ -9,6 +9,9 @@ pub_comp* pub_comp_init(unsigned int packet_identifier){
 
 void pub_comp_destroy(pub_comp* pub_comp){
 	if( pub_comp == NULL ) return;
+
+	pub_comp->control_packet = NULL;
+
 	free(pub_comp);
 	pub_comp = NULL;
 }
@@ -30,6 +33,7 @@ bytes* pub_comp_to_bytes(pub_comp* pub_comp){
 
     bytes* result = control_packet_to_bytes(pub_comp->control_packet);
     bytes_concat(result, packet_identifier);
+    bytes_destroy(packet_identifier);
     return result;
 }
 

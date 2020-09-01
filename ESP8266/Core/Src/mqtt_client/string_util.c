@@ -2,20 +2,7 @@
 
 bool string_util_is_empty(char* string){
 	if( string == NULL ) return true;
-
-	size_t size = strlen(string) + 1;
-	char* copy = (char*) malloc(size*sizeof(char));
-	for(size_t i = 0; i < size; i++) copy[i] = '\0';
-	strcpy(copy, string);
-	copy = string_util_trim(copy, ' ');
-
-	bool empty = strlen(copy) == 0;
-
-	free(copy);
-	copy = NULL;
-
-
-	return empty;
+	return strlen(string) == 0;
 }
 
 char* string_util_get_null_as_empty(char* string){
@@ -66,6 +53,7 @@ char* string_util_build_empty_string(size_t length){
 	for(size_t i = 0; i < length; i++) result[i] = '\0';
 	return result;
 }
+
 
 void string_util_copy(char* destiny, char* source, size_t length){
 	strncpy(destiny, source, length);

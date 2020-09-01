@@ -22,6 +22,8 @@ mqtt_service* mqtt_service_init(control_packet_proxy* control_packet_proxy, conn
 }
 
 void mqtt_service_destroy(mqtt_service* mqtt_service){
+	if( mqtt_service == NULL ) return;
+
 	control_packet_proxy_destroy(mqtt_service->control_packet_proxy);
 	connack_service_destroy(mqtt_service->connack_service);
 	connect_service_destroy(mqtt_service->connect_service);
@@ -31,6 +33,17 @@ void mqtt_service_destroy(mqtt_service* mqtt_service){
 	publish_service_destroy(mqtt_service->publish_service);
 	pub_rec_service_destroy(mqtt_service->pub_rec_service);
 	pub_rel_service_destroy(mqtt_service->pub_rel_service);
+
+	mqtt_service->control_packet_proxy = NULL;
+	mqtt_service->connack_service = NULL;
+	mqtt_service->connect_service = NULL;
+	mqtt_service->disconnect_service = NULL;
+	mqtt_service->pub_ack_service = NULL;
+	mqtt_service->pub_comp_service = NULL;
+	mqtt_service->publish_service = NULL;
+	mqtt_service->pub_rec_service = NULL;
+	mqtt_service->pub_rel_service = NULL;
+
 	free(mqtt_service);
 	mqtt_service = NULL;
 }
@@ -102,13 +115,4 @@ void mqtt_service_disconnect(mqtt_service* mqtt_service){
     disconnect_service_write(mqtt_service->disconnect_service, disconnect);
 
     disconnect_destroy(disconnect);
-}
-
-void mqtt_service_wait_to_send(mqtt_service* mqtt_service, unsigned int milliseconds){
-	if( mqtt_service == NULL ) return;
-    HAL_Init();
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-    HAL_IncTick();
-    HAL_GetTick();
-    HAL_Delay(milliseconds);
 }

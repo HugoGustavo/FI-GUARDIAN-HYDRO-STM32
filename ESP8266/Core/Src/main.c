@@ -20,7 +20,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "app.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -73,7 +72,8 @@ static void MX_USART2_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-int main(void){
+int main(void)
+{
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -102,12 +102,17 @@ int main(void){
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  app_init();
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  app_init(&hadc1);
   while (1){
 	  app_measure();
-	  app_send();
-	  app_wait();
+  	  app_send();
+  	  app_wait();
   }
+  /* USER CODE END 3 */
 }
 
 /**

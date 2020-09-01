@@ -3,7 +3,6 @@
 control_packet_proxy* control_packet_proxy_init(wifi* wifi, ping_req_service* ping_req_service, ping_resp_service* ping_resp_service, unsigned int connection_attempts){
 	if( wifi == NULL || ping_req_service == NULL ||  ping_resp_service == NULL || connection_attempts == 0 ) return NULL;
 	control_packet_proxy* result = (control_packet_proxy*) malloc(sizeof(control_packet_proxy));
-	if( result == NULL ) return NULL;
 	result->wifi = wifi;
 	result->ping_req_service = ping_req_service;
 	result->ping_resp_service = ping_resp_service;
@@ -13,6 +12,9 @@ control_packet_proxy* control_packet_proxy_init(wifi* wifi, ping_req_service* pi
 
 void control_packet_proxy_destroy(control_packet_proxy* control_packet_proxy){
 	if( control_packet_proxy == NULL ) return;
+	control_packet_proxy->wifi = NULL;
+	control_packet_proxy->ping_req_service = NULL;
+	control_packet_proxy->ping_resp_service = NULL;
 	free(control_packet_proxy);
 	control_packet_proxy = NULL;
 }

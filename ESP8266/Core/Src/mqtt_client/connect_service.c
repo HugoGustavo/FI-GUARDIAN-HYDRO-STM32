@@ -3,13 +3,13 @@
 connect_service* connect_service_init(control_packet_proxy* control_packet_proxy){
 	if( control_packet_proxy == NULL ) return NULL;
 	connect_service* result = (connect_service*) malloc(sizeof(connect_service));
-	if( result == NULL ) return NULL;
 	result->control_packet_proxy = control_packet_proxy;
 	return result;
 }
 
 void connect_service_destroy(connect_service* connect_service){
 	if( connect_service == NULL ) return;
+	connect_service->control_packet_proxy = NULL;
 	free(connect_service);
 	connect_service = NULL;
 }
@@ -47,6 +47,7 @@ connect* connect_service_read(connect_service* connect_service){
 	if( connect_service == NULL ) return NULL;
 	bytes* bytes = control_packet_proxy_read(connect_service->control_packet_proxy);
 	connect* connect = bytes_is_empty(bytes) ? NULL : assembler_build_to_connect(bytes);
+	bytes_destroy(bytes);
 	return connect;
 }
 
@@ -62,4 +63,5 @@ void connect_service_write(connect_service* connect_service, connect* connect){
 	}
 	bytes* bytes = connect_to_bytes(connect);
 	control_packet_proxy_write(connect_service->control_packet_proxy, bytes);
+	bytes_destroy(bytes);
 }

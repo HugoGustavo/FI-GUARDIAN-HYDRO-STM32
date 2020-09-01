@@ -1,6 +1,25 @@
 #include <esp8266/esp8266.h>
 
 esp8266* esp8266_init(void){
+	esp8266* esp = (esp8266*) malloc(sizeof(esp8266));
+    esp->ssid = NULL;
+    esp->password = NULL;
+    esp->connected = false;
+    esp->ip = NULL;
+    esp->port = 1883;
+    esp8266_turn_on(esp);
+    return esp;
+}
+
+void esp8266_destroy(esp8266* esp8266){
+	if( esp8266 == NULL ) return;
+	esp8266_turn_off(esp8266);
+	free(esp8266);
+	esp8266 = NULL;
+}
+
+void esp8266_turn_on(esp8266* esp8266){
+	if( esp8266 == NULL ) return;
 	// app_init
 	hw_esp_power_set(true);
 	hw_time_sleep(100);
@@ -9,12 +28,12 @@ esp8266* esp8266_init(void){
 	// iot_on
 	// WifiOn
 	hw_esp_power_set(true);
-    hw_esp_reset_set(false);
-    hw_esp_enable_set(true);
+	hw_esp_reset_set(false);
+	hw_esp_enable_set(true);
 
-    // iot_on
-    hw_time_sleep(1000);
-    at_init();
+	// iot_on
+	hw_time_sleep(1000);
+	at_init();
 
 	cmd.id = AT_CMD_READY;
 	at_send_cmd_blocking(&cmd,1000);
@@ -27,16 +46,19 @@ esp8266* esp8266_init(void){
 	cmd.id = AT_CMD_WIFI_AUTO_CON;
 	cmd.payload.wifi_autocon.enabled = 0;
 	at_send_cmd_blocking(&cmd,1000);
+}
 
-    esp8266* esp = (esp8266*) malloc(sizeof(esp8266));
-    if( esp == NULL ) return NULL;
-    esp->ssid = NULL;
-    esp->password = NULL;
-    esp->connected = false;
-    esp->ip = NULL;
-    esp->port = 1883;
+void esp8266_turn_off(esp8266* esp){
+	if( esp == NULL ) return;
+	hw_esp_power_set(false);
+	hw_esp_reset_set(true);
+	hw_esp_enable_set(false);
+}
 
-    return esp;
+void esp8266_reset(esp8266* esp8266){
+	if( esp8266 == NULL ) return;
+	cmd.id = AT_CMD_RST;
+	at_send_cmd_blocking(&cmd, 6000);
 }
 
 void esp8266_setOprToStationSoftAP(esp8266* esp8266){
@@ -105,16 +127,15 @@ bool esp8266_createTCP(esp8266* esp8266, uint8_t* ip, uint16_t port){
 bool esp8266_releaseTCP(esp8266* esp8266){
 	if( esp8266 == NULL ) return true;
 
-    cmd.id = AT_CMD_CON_CLOSE;
-    cmd.payload.con_close.channel = 0;
-    at_send_cmd_blocking(&cmd, 2000);
+	cmd.id = AT_CMD_CON_CLOSE;
+	cmd.payload.con_close.channel = 0;
+	at_send_cmd_blocking(&cmd, 5000);
 
     esp8266->connected = false;
     return true;
 }
 
 uint32_t esp8266_recv(esp8266* esp8266){
-	// Not implemented yet
 	return 0;
 }
 
@@ -132,17 +153,6 @@ bool esp8266_send(esp8266* esp8266, uint8_t* buffer, uint16_t buffer_size){
     bool result = cmd.status != AT_STATUS_OK ? false : true;
 
     return result;
-}
-
-void esp8266_destroy(esp8266* esp8266){
-	if( esp8266 == NULL ) return;
-
-	free(esp8266);
-	esp8266 = NULL;
-
-	hw_esp_power_set(false);
-	hw_esp_reset_set(true);
-	hw_esp_enable_set(false);
 }
 
 void esp8266_wait_for_sending(uint16_t timeoutInMilliseconds){

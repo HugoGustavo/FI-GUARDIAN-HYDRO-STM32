@@ -22,6 +22,8 @@ connack* connack_init(const bool clean_session, const unsigned char return_code)
 
 void connack_destroy(connack* connack){
 	if( connack == NULL ) return;
+
+	connack->control_packet = NULL;
 	free(connack);
 	connack = NULL;
 }

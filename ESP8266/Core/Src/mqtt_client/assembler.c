@@ -5,9 +5,9 @@ control_packet* assembler_build_to_control_packet(bytes* bytes){
 	control_packet* result = (control_packet*) malloc(sizeof(control_packet));
 
 	unsigned char typeAndFlags	= bytes_at(bytes, 0);
-	result->type                = typeAndFlags & 0xF0;
-	result->flags               = typeAndFlags & 0x0F;
-	result->remaining_length    = bytes_at(bytes, 1);
+	result->type                	= typeAndFlags & 0xF0;
+	result->flags               	= typeAndFlags & 0x0F;
+	result->remaining_length    	= bytes_at(bytes, 1);
 
 	return result;
 }
@@ -70,7 +70,6 @@ connect* assembler_build_to_connect(bytes* bytes){
 disconnect* assembler_build_to_disconnect(bytes* bytes){
 	if( bytes == NULL ) return NULL;
 	disconnect* result = (disconnect*) malloc(sizeof(disconnect));
-	if( result == NULL ) return NULL;
 	result->control_packet = assembler_build_to_control_packet(bytes);
 	return result;
 }
@@ -109,7 +108,7 @@ pub_comp* assembler_build_to_pub_comp(bytes* bytes){
 publish* assembler_build_to_publish(bytes* bytes){
 	if( bytes == NULL ) return NULL;
 
-	publish* result 	= (publish*) malloc(sizeof(publish));
+	publish* result = (publish*) malloc(sizeof(publish));
 	result->dup       	= control_packet_get_flags(result->control_packet) & 0x08 ? true : false;
 	result->qos_level 	= (unsigned char) ( (control_packet_get_flags(result->control_packet) & 0x06) >> 1 );
 	result->retain    	= control_packet_get_flags(result->control_packet) & 0x01 ? true : false;

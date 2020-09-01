@@ -35,6 +35,13 @@ session* session_get_instance(){
 	return session_instance;
 }
 
+void session_destroy(session* session){
+	if( session == NULL ) return;
+	session_reset(session);
+	free(session);
+	session = NULL;
+}
+
 char* session_get_id(session* session){
 	return session == NULL ? NULL : session->id;
 }
@@ -187,6 +194,7 @@ unsigned int session_get_last_packet_identifier(session* session){
 
 void session_reset(session* session){
 	if( session == NULL ) return;
+
 	session->id                            = NULL;
 	session->clean                         = true;
 	session->host                          = NULL;
