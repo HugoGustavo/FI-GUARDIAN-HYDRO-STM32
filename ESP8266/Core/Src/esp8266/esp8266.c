@@ -41,7 +41,7 @@ void esp8266_turn_on(esp8266* esp8266){
 	cmd.id = AT_CMD_READY;
 	at_send_cmd_blocking(&cmd,3000);
 
-	if(cmd.status != AT_STATUS_OK)		return NULL;
+	if(cmd.status != AT_STATUS_OK) return;
 
 	cmd.id = AT_CMD_WIFI_AUTO_CON;
 	cmd.payload.wifi_autocon.enabled = 0;

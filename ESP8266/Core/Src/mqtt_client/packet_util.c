@@ -9,7 +9,7 @@ bytes* packet_util_build_bytes(char* input){
 	bytes_push_back(result, msb_length);
 	bytes_push_back(result, lsb_length);
 
-	for(int i = 0; i < length; i++)
+	for(register int i = 0; i < length; i++)
 		bytes_push_back(result, (unsigned char) input[i] );
 
 	return result;
@@ -24,7 +24,7 @@ char* packet_util_build_string(bytes* bytes, unsigned int* from){
 
 	char* field = string_util_build_empty_string(length+1);
 
-	for( unsigned int i = 0; i < length; i++ )
+	for(register unsigned int i = 0; i < length; i++ )
 		field[i] = (char) bytes_at(bytes, *from + i + 2);
 
 	*from = *from + length + 2;

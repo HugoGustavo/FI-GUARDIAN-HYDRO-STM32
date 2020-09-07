@@ -201,7 +201,7 @@ at_status_t at_send_cmd_blocking(at_cmd_t* cmd, uint32_t tmrout_ms){
                     sprintf((char*)val, "=%d", cmd->payload.con_send.size);
 
                 hw_serial_tx(val, strlen((char*) val));
-
+                /*
                 // check UDP
                 if((strlen((char*) cmd->payload.con_send.site) > 0) && (cmd->payload.con_send.port > 0)){
                     hw_serial_tx((uint8_t *)",\"", 3);
@@ -209,6 +209,7 @@ at_status_t at_send_cmd_blocking(at_cmd_t* cmd, uint32_t tmrout_ms){
                     sprintf((char*)val, "\",%d", cmd->payload.con_send.port);
                     hw_serial_tx(val, strlen((char*)val));
                 }
+                */
             }            
             break;
         }

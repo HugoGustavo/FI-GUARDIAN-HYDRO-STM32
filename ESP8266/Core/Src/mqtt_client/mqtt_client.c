@@ -63,7 +63,7 @@ void mqtt_client_destroy(mqtt_client* mqtt_client){
 
 void mqtt_client_connect(mqtt_client* mqtt_client, char* id, char* host, unsigned int port, unsigned int keep_alive, bool clean_session){
 	if( mqtt_client == NULL ) return;
-	wifi_connect(mqtt_client->wifi, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_HOST, SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
+	wifi_connect(mqtt_client->wifi, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_HOST, (unsigned int) SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
 	mqtt_service_connect(mqtt_client->mqtt_service, id, host, port, keep_alive, clean_session);
 }
 

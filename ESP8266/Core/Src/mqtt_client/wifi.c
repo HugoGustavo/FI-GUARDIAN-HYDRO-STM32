@@ -27,7 +27,7 @@ void wifi_connect(wifi* wifi, char* ip, unsigned int port){
 
 	if ( wifi->mqtt_server != NULL ){
 		wifi->connected = true;
-		return;
+		return;\
 	}
 	wifi->connected = esp8266_createTCP(wifi->esp8266, (uint8_t*) ip, (uint16_t) port);
 }

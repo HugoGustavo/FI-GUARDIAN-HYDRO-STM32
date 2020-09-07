@@ -114,7 +114,7 @@ bytes* publish_to_bytes(publish* publish){
 	bytes* payload = bytes_init();
 	if ( ! string_util_is_empty(publish->payload) ){
 		unsigned int length = string_util_length(publish->payload);
-		for(int i = 0; i < length; i++) bytes_push_back(payload, (unsigned char) publish->payload[i] );
+		for(register int i = 0; i < length; i++) bytes_push_back(payload, (unsigned char) publish->payload[i] );
 		//bytes_concat(payload, packet_util_build_bytes(publish->payload));
 	}
 

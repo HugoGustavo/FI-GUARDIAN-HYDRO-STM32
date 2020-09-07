@@ -140,7 +140,7 @@ unsigned int bytes_get_size(bytes* bytes){
 
 void bytes_concat(bytes* destiny, bytes* source){
 	if ( bytes_is_empty(source) ) return;
-	for(unsigned int i = 0; i < bytes_get_size(source); i++){
+	for(register unsigned int i = 0; i < bytes_get_size(source); i++){
 		bytes_push_back(destiny, bytes_at(source, i));
 	}
 }
@@ -150,7 +150,7 @@ unsigned char* bytes_to_array(bytes* bytes){
 
 	unsigned int size = bytes_get_size(bytes);
 	unsigned char* result = (unsigned char*) malloc(size*sizeof(unsigned char));
-	for(unsigned int i = 0; i < size; i++) result[i] = bytes_at(bytes, i);
+	for(register unsigned int i = 0; i < size; i++) result[i] = bytes_at(bytes, i);
 	return result;
 }
 
@@ -161,7 +161,7 @@ unsigned char bytes_equals(bytes* first, bytes* second){
 
 	if(bytes_get_size(first) != bytes_get_size(second)) return 0;
 
-	for(unsigned int i = 0; i < bytes_get_size(first); i++)
+	for(register unsigned int i = 0; i < bytes_get_size(first); i++)
 		if ( bytes_at(first, i) != bytes_at(second, i) ) return 0;
 
 	return 1;
@@ -171,7 +171,7 @@ char* bytes_to_string(bytes* bytes){
 	if ( bytes_is_empty(bytes) ) return NULL;
 	unsigned int size = bytes_get_size(bytes)+1;
 	char* result = (char*) malloc(size*sizeof(char));
-	for(unsigned int i = 0; i < size-1; i++) result[i] = bytes_at(bytes, i);
+	for(register unsigned int i = 0; i < size-1; i++) result[i] = bytes_at(bytes, i);
 	result[size-1] = '\0';
 	return result;
 }

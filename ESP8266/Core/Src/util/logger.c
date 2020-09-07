@@ -6,8 +6,6 @@ const unsigned int LOGGER_MAX_LINES = 8;
 
 logger* logger_get_instance(){
 	if( logger_instance == NULL ){
-		SSD1306_Init();
-		SDD1306_Clear_Screen();
 		logger_instance = (logger*) malloc(sizeof(logger));
 		logger_instance->line = 0;
 	}
@@ -72,5 +70,6 @@ void logger_debug(logger* logger, char* input){
 
 void logger_clean(logger* logger){
 	if( logger == NULL ) return;
+	logger_instance->line = 0;
 	SDD1306_Clear_Screen();
 }
