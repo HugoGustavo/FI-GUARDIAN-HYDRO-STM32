@@ -1,3 +1,0 @@
-
-#define AT_CBUF_MAX 1024
-#define MIN_RADIO_TIME_ON_OFF_MS 20000
