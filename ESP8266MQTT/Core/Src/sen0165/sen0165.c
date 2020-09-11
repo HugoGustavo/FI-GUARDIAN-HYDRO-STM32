@@ -103,7 +103,7 @@ float sen0165_average(sen0165* sen0165){
 		minimum = readings[1]; maximum = readings[0];
 	}
 
-	for(unsigned int i=2; i < index; i++){
+	for(register unsigned int i=2; i < index; i++){
 		if( readings[i] < minimum) {
 			amount += minimum; minimum = readings[i];
 	    } else if( readings[i] > maximum ) {
