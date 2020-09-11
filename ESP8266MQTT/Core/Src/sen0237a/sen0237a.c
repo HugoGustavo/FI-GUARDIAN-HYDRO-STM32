@@ -149,27 +149,26 @@ void sen0237a_set_dma(sen0237a* sen0237a, direct_memory_access* dma){
 }
 
 float sen0237a_read(sen0237a* sen0237a){
-	float result = 0.0;
-
 	if ( sen0237a->mode_calibration != 0x00 ){
 		float adc_raw = direct_memory_access_get_adc_value(sen0237a->dma, sen0237a->channel);
-		result = adc_raw * ( 3.3 / 4096.0 );
+		float result = adc_raw * ( 3300.0 / 4096.0 );
 		return result;
 	}
 
 	char points_for_calibration = sen0237a->points_for_calibration;
 	uint8_t current_temperature = sen0237a_get_current_temperature(sen0237a);
 	float adc_raw = direct_memory_access_get_adc_value(sen0237a->dma, sen0237a->channel);
-	float adc_voltage = adc_raw * ( 3.3 / 4096.0 );
+	float adc_voltage = adc_raw * ( 3300.0 / 4096.0 );
+
+	uint16_t saturation = 0;
 	if( points_for_calibration == 0x01 ){
-		uint16_t saturation = sen0237a->voltage_point_1 + ( 35 * current_temperature ) - ( sen0237a->temperature_point_1 * 35 );
-		uint16_t do_reference = sen0237a->table_reference[current_temperature];
-		result = (adc_voltage * do_reference / saturation);
+		saturation = (uint32_t) sen0237a->voltage_point_1 + ( (uint32_t) 35 * current_temperature ) - ( (uint32_t) sen0237a->temperature_point_1 * 35 );
 	} else if ( points_for_calibration == 0x02 ){
-		uint16_t saturation = (int16_t)( (int8_t)current_temperature - sen0237a->temperature_point_2) * ( (uint16_t)sen0237a->voltage_point_1 - sen0237a->voltage_point_2 ) / ( (uint8_t)sen0237a->temperature_point_1 - sen0237a->temperature_point_2 ) + sen0237a->voltage_point_2;
-		uint16_t do_reference = sen0237a->table_reference[current_temperature];
-		result = (adc_voltage * do_reference / saturation);
+		saturation = (int16_t)( (int8_t)current_temperature - sen0237a->temperature_point_2) * ( (uint16_t)sen0237a->voltage_point_1 - sen0237a->voltage_point_2 ) / ( (uint8_t)sen0237a->temperature_point_1 - sen0237a->temperature_point_2 ) + sen0237a->voltage_point_2;
 	}
+
+	uint16_t do_reference = sen0237a->table_reference[current_temperature];
+	float result = (adc_voltage * do_reference / saturation);
 
 	return result;
 }
