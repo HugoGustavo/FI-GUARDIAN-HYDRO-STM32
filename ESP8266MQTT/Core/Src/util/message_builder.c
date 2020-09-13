@@ -1,19 +1,19 @@
 #include <util/message_builder.h>
 
-message_builder* instance = NULL;
+message_builder* message_builder_instance = NULL;
 
 message_builder* message_builder_get_instance(){
-	if( instance == NULL ){
-		instance = (message_builder*) malloc(sizeof(message_builder));
-		instance->reply_host = NULL;
-		instance->reply_port = NULL;
-		instance->reply_channel = NULL;
-		instance->method = NULL;
-		instance->uri = NULL;
-		instance->header = NULL;
-		instance->body = map_string_init();
+	if( message_builder_instance == NULL ){
+		message_builder_instance = (message_builder*) malloc(sizeof(message_builder));
+		message_builder_instance->reply_host = NULL;
+		message_builder_instance->reply_port = NULL;
+		message_builder_instance->reply_channel = NULL;
+		message_builder_instance->method = NULL;
+		message_builder_instance->uri = NULL;
+		message_builder_instance->header = NULL;
+		message_builder_instance->body = map_string_init();
 	}
-	return instance;
+	return message_builder_instance;
 }
 
 message_builder* message_builder_set_reply_host(message_builder* message_builder, char* reply_host){
@@ -79,29 +79,29 @@ char* message_builder_build(message_builder* message_builder){
 }
 
 void message_builder_destroy(){
-	if( instance == NULL ) return;
+	if( message_builder_instance == NULL ) return;
 
-	//free(instance->reply_host);
-	instance->reply_host = NULL;
+	//free(message_builder_instance->reply_host);
+	message_builder_instance->reply_host = NULL;
 
-	//free(instance->reply_port);
-	instance->reply_port = NULL;
+	//free(message_builder_instance->reply_port);
+	message_builder_instance->reply_port = NULL;
 
-	//free(instance->reply_channel);
-	instance->reply_channel = NULL;
+	//free(message_builder_instance->reply_channel);
+	message_builder_instance->reply_channel = NULL;
 
-	//free(instance->method);
-	instance->method = NULL;
+	//free(message_builder_instance->method);
+	message_builder_instance->method = NULL;
 
-	//free(instance->uri);
-	instance->uri = NULL;
+	//free(message_builder_instance->uri);
+	message_builder_instance->uri = NULL;
 
-	map_string_destroy(instance->header);
-	instance->header = NULL;
+	map_string_destroy(message_builder_instance->header);
+	message_builder_instance->header = NULL;
 
-	map_string_destroy(instance->body);
-	instance->body = NULL;
+	map_string_destroy(message_builder_instance->body);
+	message_builder_instance->body = NULL;
 
-	free(instance);
-	instance = NULL;
+	free(message_builder_instance);
+	message_builder_instance = NULL;
 }

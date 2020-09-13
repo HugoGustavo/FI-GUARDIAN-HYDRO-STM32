@@ -13,11 +13,15 @@ typedef struct __attribute__((__packed__)) direct_memory_access {
 	uint32_t 			adc_values[4];
 } direct_memory_access;
 
+extern direct_memory_access* direct_memory_access_instance;
+
 direct_memory_access* direct_memory_access_init(ADC_HandleTypeDef* hadc, uint32_t number_channels);
 
 void direct_memory_access_start(direct_memory_access* dma);
 
 uint32_t direct_memory_access_get_adc_value(direct_memory_access* dma, uint32_t channel);
+
+void direct_memory_access_restart(direct_memory_access* dma);
 
 // This function is based on a callback whenever the DMA reads from peripherals to memory
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);

@@ -19,7 +19,7 @@ typedef struct __attribute__((__packed__)) message_builder {
 	map_string* body;
 } message_builder;
 
-extern message_builder* instance;
+extern message_builder* message_builder_instance;
 
 message_builder* message_builder_get_instance();
 

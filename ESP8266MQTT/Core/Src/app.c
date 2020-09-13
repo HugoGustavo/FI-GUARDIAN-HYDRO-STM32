@@ -123,12 +123,12 @@ void configure_mqtt_client(void){
 void app_measure(void){
 	logger_clean(logger_get_instance());
 
-	message_builder* message_builder_instance = message_builder_get_instance();
-	message_builder_instance = message_builder_set_reply_host(message_builder_instance, SMART_WATER_PROPERTIES_REPLY_HOST);
-	message_builder_instance = message_builder_set_reply_port(message_builder_instance, SMART_WATER_PROPERTIES_REPLY_PORT);
-	message_builder_instance = message_builder_set_reply_channel(message_builder_instance, SMART_WATER_PROPERTIES_REPLY_CHANNEL);
-	message_builder_instance = message_builder_set_method(message_builder_instance, SMART_WATER_PROPERTIES_METHOD);
-	message_builder_instance = message_builder_set_uri(message_builder_instance, SMART_WATER_PROPERTIES_URI);
+	message_builder* builder = message_builder_get_instance();
+	message_builder_instance = message_builder_set_reply_host(builder, SMART_WATER_PROPERTIES_REPLY_HOST);
+	message_builder_instance = message_builder_set_reply_port(builder, SMART_WATER_PROPERTIES_REPLY_PORT);
+	message_builder_instance = message_builder_set_reply_channel(builder, SMART_WATER_PROPERTIES_REPLY_CHANNEL);
+	message_builder_instance = message_builder_set_method(builder, SMART_WATER_PROPERTIES_METHOD);
+	message_builder_instance = message_builder_set_uri(builder, SMART_WATER_PROPERTIES_URI);
 
 	char* buffer_ds18b20 = NULL;
 	char* buffer_sen0161 = NULL;
@@ -142,7 +142,7 @@ void app_measure(void){
 		float temperature = ds18b20_read(sensor_ds18b20);
 		buffer_ds18b20 = (char*) malloc(10*sizeof(char));
 		gcvt(temperature, 6, buffer_ds18b20);
-		message_builder_instance = message_builder_put_body(message_builder_instance, DS18B20_PROPERTIES_LABEL, buffer_ds18b20);
+		message_builder_instance = message_builder_put_body(builder, DS18B20_PROPERTIES_LABEL, buffer_ds18b20);
 
 		char* property_value = string_util_property(DS18B20_PROPERTIES_LABEL, buffer_ds18b20);
 		logger_info(logger_get_instance(), property_value);
@@ -154,7 +154,7 @@ void app_measure(void){
 		float ph = sen0161_read(sensor_sen0161);
 		buffer_sen0161 = (char*) malloc(10*sizeof(char));
 		gcvt(ph, 6, buffer_sen0161);
-		message_builder_instance = message_builder_put_body(message_builder_instance, SEN0161_PROPERTIES_LABEL, buffer_sen0161);
+		message_builder_instance = message_builder_put_body(builder, SEN0161_PROPERTIES_LABEL, buffer_sen0161);
 
 		char* property_value = string_util_property(SEN0161_PROPERTIES_LABEL, buffer_sen0161);
 		logger_info(logger_get_instance(), property_value);
@@ -166,7 +166,7 @@ void app_measure(void){
 		float orp = sen0165_read(sensor_sen0165);
 		buffer_sen0165 = (char*) malloc(10*sizeof(char));
 		gcvt(orp, 6, buffer_sen0165);
-		message_builder_instance = message_builder_put_body(message_builder_instance, SEN0165_PROPERTIES_LABEL, buffer_sen0165);
+		message_builder_instance = message_builder_put_body(builder, SEN0165_PROPERTIES_LABEL, buffer_sen0165);
 
 		char* property_value = string_util_property(SEN0165_PROPERTIES_LABEL, buffer_sen0165);
 		logger_info(logger_get_instance(), property_value);
@@ -178,7 +178,7 @@ void app_measure(void){
 		float ph = sen0169_read(sensor_sen0169);
 		buffer_sen0169 = (char*) malloc(10*sizeof(char));
 		gcvt(ph, 6, buffer_sen0169);
-		message_builder_instance = message_builder_put_body(message_builder_instance, SEN0169_PROPERTIES_LABEL, buffer_sen0169);
+		message_builder_instance = message_builder_put_body(builder, SEN0169_PROPERTIES_LABEL, buffer_sen0169);
 
 		char* property_value = string_util_property(SEN0169_PROPERTIES_LABEL, buffer_sen0169);
 		logger_info(logger_get_instance(), property_value);
@@ -190,7 +190,7 @@ void app_measure(void){
 		float turbidity = sen0189_read(sensor_sen0189);
 		buffer_sen0189 = (char*) malloc(10*sizeof(char));
 		gcvt(turbidity, 6, buffer_sen0189);
-		message_builder_instance = message_builder_put_body(message_builder_instance, SEN0189_PROPERTIES_LABEL, buffer_sen0189);
+		message_builder_instance = message_builder_put_body(builder, SEN0189_PROPERTIES_LABEL, buffer_sen0189);
 
 		char* property_value = string_util_property(SEN0189_PROPERTIES_LABEL, buffer_sen0189);
 		logger_info(logger_get_instance(), property_value);
@@ -202,7 +202,7 @@ void app_measure(void){
 		float dissolved_oxygen = sen0237a_read(sensor_sen0237a);
 		buffer_sen0237a = (char*) malloc(10*sizeof(char));
 		gcvt(dissolved_oxygen, 6, buffer_sen0237a);
-		message_builder_instance = message_builder_put_body(message_builder_instance, SEN0237A_PROPERTIES_LABEL, buffer_sen0237a);
+		message_builder_instance = message_builder_put_body(builder, SEN0237A_PROPERTIES_LABEL, buffer_sen0237a);
 
 		char* property_value = string_util_property(SEN0237A_PROPERTIES_LABEL, buffer_sen0237a);
 		logger_info(logger_get_instance(), property_value);
@@ -238,6 +238,7 @@ void app_send(void){
 
 void app_wait(void){
 	stm32_util_delay_in_seconds(SMART_WATER_PROPERTIES_MEASUREMENT_CYCLE_IN_SECONDS);
+	direct_memory_access_restart(dma);
 }
 
 void app_destroy(void){

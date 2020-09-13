@@ -26,6 +26,7 @@ sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_c
 	result->table_reference[7] = 12110;
 	result->table_reference[8] = 11810;
 	result->table_reference[9] = 11530;
+
 	result->table_reference[10] = 11260;
 	result->table_reference[11] = 11010;
 	result->table_reference[12] = 10770;
@@ -36,6 +37,7 @@ sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_c
 	result->table_reference[17] = 9660;
 	result->table_reference[18] = 9460;
 	result->table_reference[19] = 9270;
+
 	result->table_reference[20] = 9080;
 	result->table_reference[21] = 8900;
 	result->table_reference[22] = 8730;
@@ -46,6 +48,7 @@ sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_c
 	result->table_reference[27] = 7960;
 	result->table_reference[28] = 7820;
 	result->table_reference[29] = 7690;
+
 	result->table_reference[30] = 7560;
 	result->table_reference[31] = 7430;
 	result->table_reference[32] = 7300;
@@ -149,26 +152,23 @@ void sen0237a_set_dma(sen0237a* sen0237a, direct_memory_access* dma){
 }
 
 float sen0237a_read(sen0237a* sen0237a){
-	if ( sen0237a->mode_calibration != 0x00 ){
-		float adc_raw = direct_memory_access_get_adc_value(sen0237a->dma, sen0237a->channel);
-		float result = adc_raw * ( 3300.0 / 4096.0 );
-		return result;
-	}
+	if( sen0237a == NULL ) return 0.0;
 
-	char points_for_calibration = sen0237a->points_for_calibration;
-	uint8_t current_temperature = sen0237a_get_current_temperature(sen0237a);
 	float adc_raw = direct_memory_access_get_adc_value(sen0237a->dma, sen0237a->channel);
-	float adc_voltage = adc_raw * ( 3300.0 / 4096.0 );
+	float adc_voltage = adc_raw * ( 5000.0 / 4096.0 );
+
+	if ( sen0237a->mode_calibration != 0x00 ){
+		return adc_voltage;
+	}
 
 	uint16_t saturation = 0;
+	char points_for_calibration = sen0237a->points_for_calibration;
 	if( points_for_calibration == 0x01 ){
-		saturation = (uint32_t) sen0237a->voltage_point_1 + ( (uint32_t) 35 * current_temperature ) - ( (uint32_t) sen0237a->temperature_point_1 * 35 );
+		saturation = (uint32_t) sen0237a->voltage_point_1 + ( (uint32_t) 35 * sen0237a->current_temperature ) - ( (uint32_t) sen0237a->temperature_point_1 * 35 );
 	} else if ( points_for_calibration == 0x02 ){
-		saturation = (int16_t)( (int8_t)current_temperature - sen0237a->temperature_point_2) * ( (uint16_t)sen0237a->voltage_point_1 - sen0237a->voltage_point_2 ) / ( (uint8_t)sen0237a->temperature_point_1 - sen0237a->temperature_point_2 ) + sen0237a->voltage_point_2;
+		saturation = (int16_t)( (int8_t)sen0237a->current_temperature - sen0237a->temperature_point_2) * ( (uint16_t)sen0237a->voltage_point_1 - sen0237a->voltage_point_2 ) / ( (uint8_t)sen0237a->temperature_point_1 - sen0237a->temperature_point_2 ) + sen0237a->voltage_point_2;
 	}
 
-	uint16_t do_reference = sen0237a->table_reference[current_temperature];
-	float result = (adc_voltage * do_reference / saturation);
-
+	float result = (adc_voltage * sen0237a->table_reference[sen0237a->current_temperature] / saturation);
 	return result;
 }

@@ -10,13 +10,18 @@
 typedef struct __attribute__((__packed__)) sen0237a {
 	direct_memory_access* 	dma;
 	uint32_t 				channel;
+
 	char 					mode_calibration;
 	char					points_for_calibration;
+
 	uint32_t 				voltage_point_1;
 	uint8_t 				temperature_point_1;
+
 	uint32_t				voltage_point_2;
 	uint8_t 				temperature_point_2;
+
 	uint32_t				current_temperature;
+
 	uint16_t 				table_reference[41];
 } sen0237a;
 

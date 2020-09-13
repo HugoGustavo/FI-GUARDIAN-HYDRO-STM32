@@ -35,10 +35,11 @@ void sen0189_set_dma(sen0189* sen0189, direct_memory_access* dma){
 float sen0189_read(sen0189* sen0189){
 	if( sen0189 == NULL ) return 0.0;
 
-	float voltage = direct_memory_access_get_adc_value(sen0189_get_dma(sen0189), sen0189_get_channel(sen0189)) * 1000;
-    voltage = voltage * ( 3300 / 4096.0 );
+	float voltage = direct_memory_access_get_adc_value(sen0189->dma, sen0189->channel) * ( 5000.0 / 4096.0 );
+    voltage = voltage > 3004.74 ? 3004.74 : voltage;
 
-    float sensor_value = pow( 1346605265 - 448160*voltage, 0.5);
+    float sensor_value = sqrtf(1346605265-448160*voltage);
 	sensor_value = (sensor_value / 22408.0) + (57423.0/22408.0);
+
 	return sensor_value;
 }

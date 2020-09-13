@@ -1,13 +1,17 @@
 #include <dma/direct_memory_access.h>
 
+direct_memory_access* direct_memory_access_instance = NULL;
+
 direct_memory_access* direct_memory_access_init(ADC_HandleTypeDef* hadc, uint32_t number_channels){
 	if( number_channels == 0 ) return NULL;
-	direct_memory_access* result = (direct_memory_access*) malloc(sizeof(direct_memory_access));
-	result->hadc = hadc;
-	result->number_channels = number_channels;
-	for(register uint32_t i = 0; i < number_channels; i++)
-		result->adc_values[i] = (uint32_t) 0;
-	return result;
+	if( direct_memory_access_instance == NULL ){
+		direct_memory_access_instance = (direct_memory_access*) malloc(sizeof(direct_memory_access));
+		direct_memory_access_instance->hadc = hadc;
+		direct_memory_access_instance->number_channels = number_channels;
+		for(register uint32_t i = 0; i < number_channels; i++)
+			direct_memory_access_instance->adc_values[i] = (uint32_t) 0;
+	}
+	return direct_memory_access_instance;
 }
 
 void direct_memory_access_start(direct_memory_access* dma){
@@ -26,6 +30,12 @@ uint32_t direct_memory_access_get_adc_value(direct_memory_access* dma, uint32_t 
 		default: return 0;
 	}
 
+}
+
+void direct_memory_access_restart(direct_memory_access* dma){
+	if( dma == NULL ) return;
+	HAL_ADC_Stop_DMA(dma->hadc);
+	HAL_ADC_Start_DMA(dma->hadc, dma->adc_values, dma->number_channels);
 }
 
 // This function is based on a callback whenever the DMA reads from peripherals to memory

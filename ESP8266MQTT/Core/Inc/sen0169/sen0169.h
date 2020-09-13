@@ -10,7 +10,7 @@
 typedef struct __attribute__((__packed__)) sen0169 {
 	uint32_t				channel;
 	float 					offset;
-	unsigned int 			readings[30];
+	unsigned int 			readings[12];
 	unsigned int 			index;
 	direct_memory_access*	dma;
 } sen0169;

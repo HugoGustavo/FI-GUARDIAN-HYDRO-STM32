@@ -41,7 +41,7 @@ unsigned int* sen0169_get_readings(sen0169* sen0169){
 
 void sen0169_set_readings(sen0169* sen0169, unsigned int readings[]){
 	if( sen0169 == NULL ) return;
-	for(register int i = 0; i < 30; i++)
+	for(register int i = 0; i < 12; i++)
 		sen0169->readings[i] = readings[i];
 }
 
@@ -65,45 +65,44 @@ void sen0169_set_dma(sen0169* sen0169, direct_memory_access* dma){
 
 float sen0169_read(sen0169* sen0169){
 	if( sen0169 == NULL ) return 0.0;
-	unsigned int* readings = sen0169_get_readings(sen0169);
-	readings[sen0169_get_index(sen0169)] = direct_memory_access_get_adc_value(sen0169_get_dma(sen0169), sen0169_get_channel(sen0169));
-	sen0169_set_index(sen0169, ( sen0169_get_index(sen0169) + 1 ) % 40);
-	float phValue = 3.5 * ( sen0169_average(sen0169) * 3.3 / 4096.0 ) + sen0169_get_offset(sen0169);
+
+	float raw_adc = direct_memory_access_get_adc_value(sen0169->dma, sen0169->channel);
+	sen0169->readings[sen0169->index] = raw_adc;
+	sen0169->index = ( sen0169->index + 1 ) % 12;
+
+	float phValue = 3.5 * ( sen0169_average(sen0169) * 5.0 / 4096.0 ) + sen0169->offset;
 	return phValue;
 }
 
 float sen0169_average(sen0169* sen0169){
 	if( sen0169 == NULL ) return 0.0;
 
-	unsigned int* readings = sen0169_get_readings(sen0169);
-	unsigned int index = sen0169_get_index(sen0169);
 	long amount = 0;
-
-	if( index < 5 ){
-		for(register unsigned int i = 0; i < index; i++ ){
-			amount += readings[i];
+	if( sen0169->index < 5 ){
+		for(register unsigned int i = 0; i < sen0169->index; i++ ){
+			amount += sen0169->readings[i];
 		}
-		return (float) (amount / index);
+		return (float) (amount / sen0169->index);
 	}
 
 	unsigned int maximum, minimum;
-	if( readings[0] < readings[1] ){
-		minimum = readings[0]; maximum = readings[1];
+	if( sen0169->readings[0] < sen0169->readings[1] ){
+		minimum = sen0169->readings[0]; maximum = sen0169->readings[1];
 	} else {
-		minimum = readings[1]; maximum = readings[0];
+		minimum = sen0169->readings[1]; maximum = sen0169->readings[0];
 	}
 
-	for(register unsigned int i=2; i < index; i++){
-		if( readings[i] < minimum) {
-			amount += minimum; minimum = readings[i];
-	    } else if( readings[i] > maximum ) {
-	    	amount += maximum; maximum = readings[i];
+	for(register unsigned int i=2; i < sen0169->index; i++){
+		if( sen0169->readings[i] < minimum) {
+			amount += minimum; minimum = sen0169->readings[i];
+	    } else if( sen0169->readings[i] > maximum ) {
+	    	amount += maximum; maximum = sen0169->readings[i];
 	    } else {
-		    amount += readings[i];
+		    amount += sen0169->readings[i];
 	    }
 	}
 
-	float average = (float) ( amount / (index-2) );
+	float average = (float) ( amount / (sen0169->index-2) );
 	return average;
 }
 

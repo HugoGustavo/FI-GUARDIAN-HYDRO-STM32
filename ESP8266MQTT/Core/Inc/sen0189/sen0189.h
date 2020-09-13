@@ -1,8 +1,9 @@
 #ifndef SEN0189_H
 #define SEN0189_H
 
-#include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <util/stm32_util.h>
 #include "stm32l4xx_hal.h"
 #include <dma/direct_memory_access.h>

@@ -4,7 +4,7 @@ sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel, float offset)
 	sen0161* result = (sen0161*) malloc(sizeof(sen0161));
 	result->channel = channel;
 	result->offset = offset;
-	for(register int i = 0; i < 40; i++) result->readings[i] = 0;
+	for(register int i = 0; i < 12; i++) result->readings[i] = 0;
 	result->index = 0;
 	result->dma = dma;
 	return result;
@@ -41,7 +41,7 @@ unsigned int* sen0161_get_readings(sen0161* sen0161){
 
 void sen0161_set_readings(sen0161* sen0161, unsigned int readings[]){
 	if( sen0161 == NULL ) return;
-	for(register int i = 0; i < 40; i++)
+	for(register int i = 0; i < 12; i++)
 		sen0161->readings[i] = readings[i];
 }
 
@@ -65,42 +65,43 @@ void sen0161_set_dma(sen0161* sen0161, direct_memory_access* dma){
 
 float sen0161_read(sen0161* sen0161){
 	if( sen0161 == NULL ) return 0.0;
-	unsigned int* readings = sen0161_get_readings(sen0161);
-	readings[sen0161_get_index(sen0161)] = direct_memory_access_get_adc_value(sen0161_get_dma(sen0161), sen0161_get_channel(sen0161));
-	sen0161_set_index(sen0161, ( sen0161_get_index(sen0161) + 1 ) % 40);
-	float phValue = 3.5 * ( sen0161_average(sen0161) * 3.3 / 4096.0 ) + sen0161_get_offset(sen0161);
+
+	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel) ;
+	sen0161->readings[sen0161->index] = raw_adc;
+	sen0161->index = ( sen0161->index + 1 ) % 12;
+
+	float phValue = 3.5 * ( sen0161_average(sen0161) * 5.0 / 4096.0 ) + sen0161->offset;
 	return phValue;
 }
 
 float sen0161_average(sen0161* sen0161){
-	unsigned int* readings = sen0161_get_readings(sen0161);
-	unsigned int index = sen0161_get_index(sen0161);
-	long amount = 0;
+	if( sen0161 == NULL ) return 0.0;
 
-	if( index < 5 ){
-		for(register unsigned int i = 0; i < index; i++ ){
-			amount += readings[i];
+	long amount = 0;
+	if( sen0161->index < 5 ){
+		for(register unsigned int i = 0; i < sen0161->index; i++ ){
+			amount += sen0161->readings[i];
 		}
-		return (float) (amount / index);
+		return (float) (amount / sen0161->index);
 	}
 
 	unsigned int maximum, minimum;
-	if( readings[0] < readings[1] ){
-		minimum = readings[0]; maximum = readings[1];
+	if( sen0161->readings[0] < sen0161->readings[1] ){
+		minimum = sen0161->readings[0]; maximum = sen0161->readings[1];
 	} else {
-		minimum = readings[1]; maximum = readings[0];
+		minimum = sen0161->readings[1]; maximum = sen0161->readings[0];
 	}
 
-	for(register unsigned int i=2; i < index; i++){
-		if( readings[i] < minimum) {
-			amount += minimum; minimum = readings[i];
-	    } else if( readings[i] > maximum ) {
-	    	amount += maximum; maximum = readings[i];
+	for(register unsigned int i=2; i < sen0161->index; i++){
+		if( sen0161->readings[i] < minimum) {
+			amount += minimum; minimum = sen0161->readings[i];
+	    } else if( sen0161->readings[i] > maximum ) {
+	    	amount += maximum; maximum = sen0161->readings[i];
 	    } else {
-		    amount += readings[i];
+		    amount += sen0161->readings[i];
 	    }
 	}
 
-	float average = (float) ( amount / (index-2) );
+	float average = (float) ( amount / (sen0161->index-2) );
 	return average;
 }

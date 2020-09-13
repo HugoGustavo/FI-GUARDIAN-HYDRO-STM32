@@ -10,8 +10,7 @@
 typedef struct __attribute__((__packed__)) sen0165 {
 	uint32_t				channel;
 	float 					offset;
-	float					voltage;
-	unsigned int 			readings[40];
+	unsigned int 			readings[12];
 	unsigned int 			index;
 	direct_memory_access*	dma;
 } sen0165;
@@ -31,10 +30,6 @@ void sen0165_set_channel(sen0165* sen0165, uint32_t channel);
 float sen0165_get_offset(sen0165* sen0165);
 
 void sen0165_set_offset(sen0165* sen0165, const float offset);
-
-float sen0165_get_voltage(sen0165* sen0165);
-
-void sen0165_set_voltage(sen0165* sen0165, const float voltage);
 
 unsigned int* sen0165_get_readings(sen0165* sen0165);
 
