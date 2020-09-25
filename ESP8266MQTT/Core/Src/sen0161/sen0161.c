@@ -1,9 +1,8 @@
 #include <sen0161/sen0161.h>
 
-sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel, float offset){
+sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel){
 	sen0161* result = (sen0161*) malloc(sizeof(sen0161));
 	result->channel = channel;
-	result->offset = offset;
 	for(register int i = 0; i < 12; i++) result->readings[i] = 0;
 	result->index = 0;
 	result->dma = dma;
@@ -24,15 +23,6 @@ uint32_t sen0161_get_channel(sen0161* sen0161){
 void sen0161_set_channel(sen0161* sen0161, uint32_t channel){
 	if( sen0161 == NULL ) return;
 	sen0161->channel = channel;
-}
-
-float sen0161_get_offset(sen0161* sen0161){
-	return sen0161 == NULL ? 0 : sen0161->offset;
-}
-
-void sen0161_set_offset(sen0161* sen0161, const float offset){
-	if( sen0161 == NULL ) return;
-	sen0161->offset = offset;
 }
 
 unsigned int* sen0161_get_readings(sen0161* sen0161){
@@ -66,12 +56,24 @@ void sen0161_set_dma(sen0161* sen0161, direct_memory_access* dma){
 float sen0161_read(sen0161* sen0161){
 	if( sen0161 == NULL ) return 0.0;
 
-	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel) ;
+	/******************************** Find the linear coefficients ********************************************
+		float ph_1 = 1.0;
+		float voltage_1 = 4.5602;
+		float ph_2 = 13.0;
+		float voltage_2 = 4.4621;
+		float alpha = (ph_1 - ph_2) / ( voltage_1 - voltage_2 );
+		float beta = ph_1 - ( alpha*voltage_1 );
+	**********************************************************************************************************/
+
+	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel);
 	sen0161->readings[sen0161->index] = raw_adc;
 	sen0161->index = ( sen0161->index + 1 ) % 12;
 
-	float phValue = 3.5 * ( sen0161_average(sen0161) * 5.0 / 4096.0 ) + sen0161->offset;
-	return phValue;
+	float voltage = sen0161_average(sen0161) * 5.0 / 4096.0;
+	float alpha = -122.323929;
+	float beta = 558.821594;
+
+	return alpha * voltage + beta;
 }
 
 float sen0161_average(sen0161* sen0161){

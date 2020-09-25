@@ -1,9 +1,8 @@
 #include <sen0169/sen0169.h>
 
-sen0169* sen0169_init(direct_memory_access* dma, uint32_t channel, float offset){
+sen0169* sen0169_init(direct_memory_access* dma, uint32_t channel){
 	sen0169* result 	= (sen0169*) malloc(sizeof(sen0169));
 	result->channel 	= channel;
-	result->offset 		= offset;
 	for(register int i = 0; i < 40; i++) result->readings[i] = 0;
 	result->index 		= 0;
 	result->dma 		= dma;
@@ -24,15 +23,6 @@ uint32_t sen0169_get_channel(sen0169* sen0169){
 void sen0169_set_channel(sen0169* sen0169, uint32_t channel){
 	if( sen0169 == NULL ) return;
 	sen0169->channel = channel;
-}
-
-float sen0169_get_offset(sen0169* sen0169){
-	return sen0169 == NULL ? 0 : sen0169->offset;
-}
-
-void sen0169_set_offset(sen0169* sen0169, const float offset){
-	if( sen0169 == NULL ) return;
-	sen0169->offset = offset;
 }
 
 unsigned int* sen0169_get_readings(sen0169* sen0169){
@@ -66,12 +56,24 @@ void sen0169_set_dma(sen0169* sen0169, direct_memory_access* dma){
 float sen0169_read(sen0169* sen0169){
 	if( sen0169 == NULL ) return 0.0;
 
+	/******************************** Find the linear coefficients ********************************************
+		float ph_1 = 1.0;
+		float voltage_1 = 4.5602;
+		float ph_2 = 13.0;
+		float voltage_2 = 4.4621;
+		float alpha = (ph_1 - ph_2) / ( voltage_1 - voltage_2 );
+		float beta = ph_1 - ( alpha*voltage_1 );
+	**********************************************************************************************************/
+
 	float raw_adc = direct_memory_access_get_adc_value(sen0169->dma, sen0169->channel);
 	sen0169->readings[sen0169->index] = raw_adc;
 	sen0169->index = ( sen0169->index + 1 ) % 12;
 
-	float phValue = 3.5 * ( sen0169_average(sen0169) * 5.0 / 4096.0 ) + sen0169->offset;
-	return phValue;
+	float voltage = sen0169_average(sen0169)* 5.0 / 4096.0;
+	float alpha = -122.323929;
+	float beta = 558.821594;
+
+	return alpha * voltage + beta;
 }
 
 float sen0169_average(sen0169* sen0169){

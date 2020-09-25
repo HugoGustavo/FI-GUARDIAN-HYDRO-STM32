@@ -38,15 +38,6 @@ extern char*            	DS18B20_PROPERTIES_LABEL;
 
 
 
-/*--------------------------------------------------- BEGIN SEN0161 -------------------------------------------------------------------------------*/
-extern uint32_t      		SEN0161_PROPERTIES_PIN;
-extern float				SEN0161_PROPERTIES_OFFSET;
-extern char*            	SEN0161_PROPERTIES_LABEL;
-/*---------------------------------------------------- END SEN0161 --------------------------------------------------------------------------------*/
-
-
-
-
 /*--------------------------------------------------- BEGIN SEN0165 -------------------------------------------------------------------------------*/
 extern uint32_t      		SEN0165_PROPERTIES_PIN;
 extern float				SEN0165_PROPERTIES_OFFSET;
@@ -59,7 +50,6 @@ extern char*            	SEN0165_PROPERTIES_LABEL;
 /*--------------------------------------------------- BEGIN SEN0169 -------------------------------------------------------------------------------*/
 extern uint32_t      		SEN0169_PROPERTIES_PIN;
 extern char*            	SEN0169_PROPERTIES_LABEL;
-extern float				SEN0169_PROPERTIES_OFFSET;
 /*---------------------------------------------------- END SEN0169 --------------------------------------------------------------------------------*/
 
 
@@ -81,7 +71,6 @@ extern uint32_t				SEN0237A_PROPERTIES_VOLTAGE_POINT_1;
 extern uint8_t				SEN0237A_PROPERTIES_TEMPERATURE_POINT_1;
 extern uint32_t				SEN0237A_PROPERTIES_VOLTAGE_POINT_2;
 extern uint8_t				SEN0237A_PROPERTIES_TEMPERATURE_POINT_2;
-extern uint8_t				SEN0237A_PROPERTIES_TEMPERATURE_CURRENT;
 extern char* 				SEN0237A_PROPERTIES_LABEL;
 /*---------------------------------------------------- END SEN0237 --------------------------------------------------------------------------------*/
 

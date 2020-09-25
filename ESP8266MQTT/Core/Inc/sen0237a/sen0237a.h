@@ -25,7 +25,7 @@ typedef struct __attribute__((__packed__)) sen0237a {
 	uint16_t 				table_reference[41];
 } sen0237a;
 
-sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_calibration, char points_for_calibration, uint32_t voltage_point_1, uint8_t temperature_point_1, uint32_t voltage_point_2, uint8_t temperature_point_2, uint32_t current_temperature);
+sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_calibration, char points_for_calibration, uint32_t voltage_point_1, uint8_t temperature_point_1, uint32_t voltage_point_2, uint8_t temperature_point_2);
 
 void sen0237a_destroy(sen0237a* sen0237a);
 
@@ -59,7 +59,7 @@ void sen0237a_set_temperature_point_2(sen0237a* sen0237a, uint8_t temperature_po
 
 uint32_t sen0237a_get_current_temperature(sen0237a* sen0237a);
 
-void sen0237a_set_temperature(sen0237a* sen0237a, uint32_t current_temperature);
+void sen0237a_set_current_temperature(sen0237a* sen0237a, uint32_t current_temperature);
 
 direct_memory_access* sen0237a_get_dma(sen0237a* sen0237a);
 

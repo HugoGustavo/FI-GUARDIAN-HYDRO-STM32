@@ -1,6 +1,6 @@
 #include <sen0237a/sen0237a.h>
 
-sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_calibration, char points_for_calibration, uint32_t voltage_point_1, uint8_t temperature_point_1, uint32_t voltage_point_2, uint8_t temperature_point_2, uint32_t current_temperature){
+sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_calibration, char points_for_calibration, uint32_t voltage_point_1, uint8_t temperature_point_1, uint32_t voltage_point_2, uint8_t temperature_point_2){
 	sen0237a* result = (sen0237a*) malloc(sizeof(sen0237a));
 
 	result->dma 						= dma;
@@ -13,8 +13,6 @@ sen0237a* sen0237a_init(direct_memory_access* dma, uint32_t channel, char mode_c
 
 	result->voltage_point_2				= voltage_point_2;
 	result->temperature_point_2			= temperature_point_2;
-
-	result->current_temperature			= current_temperature;
 
 	result->table_reference[0] = 14460;
 	result->table_reference[1] = 14220;
@@ -136,7 +134,7 @@ uint32_t sen0237a_get_current_temperature(sen0237a* sen0237a){
 	return sen0237a == NULL ? 0 : sen0237a->current_temperature;
 }
 
-void sen0237a_set_temperature(sen0237a* sen0237a, uint32_t current_temperature){
+void sen0237a_set_current_temperature(sen0237a* sen0237a, uint32_t current_temperature){
 	if( sen0237a == NULL ) return;
 	sen0237a->current_temperature = current_temperature;
 }
@@ -155,7 +153,7 @@ float sen0237a_read(sen0237a* sen0237a){
 	if( sen0237a == NULL ) return 0.0;
 
 	float adc_raw = direct_memory_access_get_adc_value(sen0237a->dma, sen0237a->channel);
-	float adc_voltage = adc_raw * ( 5000.0 / 4096.0 );
+	float adc_voltage = adc_raw * ( 5.0 / 4096.0 );
 
 	if ( sen0237a->mode_calibration != 0x00 ){
 		return adc_voltage;

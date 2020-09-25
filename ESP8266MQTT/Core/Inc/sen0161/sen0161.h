@@ -9,13 +9,12 @@
 
 typedef struct __attribute__((__packed__)) sen0161 {
 	uint32_t				channel;
-	float 					offset;
 	unsigned int 			readings[12];
 	unsigned int 			index;
 	direct_memory_access*	dma;
 } sen0161;
 
-sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel, float offset);
+sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel);
 
 void sen0161_destroy(sen0161* sen0161);
 
@@ -26,10 +25,6 @@ void sen0161_set_pin(sen0161* sen0161, ADC_HandleTypeDef* pin);
 uint32_t sen0161_get_channel(sen0161* sen0161);
 
 void sen0161_set_channel(sen0161* sen0161, uint32_t channel);
-
-float sen0161_get_offset(sen0161* sen0161);
-
-void sen0161_set_offset(sen0161* sen0161, const float offset);
 
 unsigned int* sen0161_get_readings(sen0161* sen0161);
 

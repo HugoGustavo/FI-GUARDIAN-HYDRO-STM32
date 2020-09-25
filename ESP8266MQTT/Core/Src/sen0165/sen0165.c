@@ -70,7 +70,7 @@ float sen0165_read(sen0165* sen0165){
 	sen0165->readings[sen0165->index] = raw_adc;
 	sen0165->index = ( sen0165->index + 1 ) % 12;
 
-	float orpValue = ( ( 30 * 5.0 * 1000 ) - ( 75 * sen0165_average(sen0165) * 5.0 * 1000 / 4096.0 ) ) / 75 + sen0165->offset;
+	float orpValue = ( 2000.0 - ( sen0165_average(sen0165) * 5.0 * 1000 / 4096.0 ) ) - sen0165->offset;
 	return orpValue;
 }
 

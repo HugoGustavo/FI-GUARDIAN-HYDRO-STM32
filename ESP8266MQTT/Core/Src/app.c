@@ -5,7 +5,6 @@ esp8266* 				esp 				= NULL;
 direct_memory_access*	dma					= NULL;
 mqtt_client*			mqtt 				= NULL;
 ds18b20*				sensor_ds18b20		= NULL;
-sen0161*				sensor_sen0161		= NULL;
 sen0165*				sensor_sen0165		= NULL;
 sen0169*				sensor_sen0169		= NULL;
 sen0189*				sensor_sen0189		= NULL;
@@ -20,7 +19,6 @@ void app_init(ADC_HandleTypeDef* hadc){
 	configure_dma(hadc);
 
 	configure_ds18b20();
-	configure_sen0161();
 	configure_sen0165();
 	configure_sen0169();
 	configure_sen0189();
@@ -70,13 +68,6 @@ void configure_ds18b20(void){
 	}
 }
 
-void configure_sen0161(void){
-	if( SEN0161_PROPERTIES_PIN != 0 ){
-		logger_info(logger_get_instance(), (char*) "Configurando SEN0161");
-		sensor_sen0161 = sen0161_init(dma, SEN0161_PROPERTIES_PIN, SEN0161_PROPERTIES_OFFSET);
-	}
-}
-
 void configure_sen0165(void){
 	if( SEN0165_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0165");
@@ -87,7 +78,7 @@ void configure_sen0165(void){
 void configure_sen0169(void){
 	if( SEN0169_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0169");
-		sensor_sen0169 = sen0169_init(dma, SEN0169_PROPERTIES_PIN, SEN0169_PROPERTIES_OFFSET);
+		sensor_sen0169 = sen0169_init(dma, SEN0169_PROPERTIES_PIN);
 	}
 
 }
@@ -109,8 +100,7 @@ void configure_sen0237a(void){
 				SEN0237A_PROPERTIES_VOLTAGE_POINT_1,
 				SEN0237A_PROPERTIES_TEMPERATURE_POINT_1,
 				SEN0237A_PROPERTIES_VOLTAGE_POINT_2,
-				SEN0237A_PROPERTIES_TEMPERATURE_POINT_2,
-				SEN0237A_PROPERTIES_TEMPERATURE_CURRENT);
+				SEN0237A_PROPERTIES_TEMPERATURE_POINT_2);
 	}
 }
 
@@ -131,7 +121,6 @@ void app_measure(void){
 	message_builder_instance = message_builder_set_uri(builder, SMART_WATER_PROPERTIES_URI);
 
 	char* buffer_ds18b20 = NULL;
-	char* buffer_sen0161 = NULL;
 	char* buffer_sen0165 = NULL;
 	char* buffer_sen0169 = NULL;
 	char* buffer_sen0189 = NULL;
@@ -145,18 +134,6 @@ void app_measure(void){
 		message_builder_instance = message_builder_put_body(builder, DS18B20_PROPERTIES_LABEL, buffer_ds18b20);
 
 		char* property_value = string_util_property(DS18B20_PROPERTIES_LABEL, buffer_ds18b20);
-		logger_info(logger_get_instance(), property_value);
-		free(property_value);
-		property_value = NULL;
-	}
-
-	if( sensor_sen0161 != NULL ){
-		float ph = sen0161_read(sensor_sen0161);
-		buffer_sen0161 = (char*) malloc(10*sizeof(char));
-		gcvt(ph, 6, buffer_sen0161);
-		message_builder_instance = message_builder_put_body(builder, SEN0161_PROPERTIES_LABEL, buffer_sen0161);
-
-		char* property_value = string_util_property(SEN0161_PROPERTIES_LABEL, buffer_sen0161);
 		logger_info(logger_get_instance(), property_value);
 		free(property_value);
 		property_value = NULL;
@@ -198,7 +175,8 @@ void app_measure(void){
 		property_value = NULL;
 	}
 
-	if( sensor_sen0237a != NULL ){
+	if( sensor_sen0237a != NULL && sensor_ds18b20 != NULL){
+		sen0237a_set_current_temperature(sensor_sen0237a, (uint32_t) ceil(ds18b20_read(sensor_ds18b20)));
 		float dissolved_oxygen = sen0237a_read(sensor_sen0237a);
 		buffer_sen0237a = (char*) malloc(10*sizeof(char));
 		gcvt(dissolved_oxygen, 6, buffer_sen0237a);
@@ -213,14 +191,12 @@ void app_measure(void){
 	message = message_builder_build(message_builder_instance);
 
 	if( buffer_ds18b20 != NULL ) free(buffer_ds18b20);
-	if( buffer_sen0161 != NULL ) free(buffer_sen0161);
 	if( buffer_sen0165 != NULL ) free(buffer_sen0165);
 	if( buffer_sen0169 != NULL ) free(buffer_sen0169);
 	if( buffer_sen0189 != NULL ) free(buffer_sen0189);
 	if( buffer_sen0237a != NULL ) free(buffer_sen0237a);
 
 	buffer_ds18b20 = NULL;
-	buffer_sen0161 = NULL;
 	buffer_sen0165 = NULL;
 	buffer_sen0169 = NULL;
 	buffer_sen0189 = NULL;
@@ -246,7 +222,6 @@ void app_destroy(void){
 	esp8266_destroy(esp);
 	mqtt_client_destroy(mqtt);
 	ds18b20_destroy(sensor_ds18b20);
-	sen0161_destroy(sensor_sen0161);
 	sen0165_destroy(sensor_sen0165);
 	sen0169_destroy(sensor_sen0169);
 	sen0189_destroy(sensor_sen0189);
@@ -255,7 +230,6 @@ void app_destroy(void){
 	esp 				= NULL;
 	mqtt 				= NULL;
 	sensor_ds18b20		= NULL;
-	sensor_sen0161		= NULL;
 	sensor_sen0165		= NULL;
 	sensor_sen0169		= NULL;
 	sensor_sen0189		= NULL;

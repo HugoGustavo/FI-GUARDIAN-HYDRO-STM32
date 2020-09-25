@@ -9,23 +9,18 @@
 
 typedef struct __attribute__((__packed__)) sen0169 {
 	uint32_t				channel;
-	float 					offset;
 	unsigned int 			readings[12];
 	unsigned int 			index;
 	direct_memory_access*	dma;
 } sen0169;
 
-sen0169* sen0169_init(direct_memory_access* dma, uint32_t channel, float offset);
+sen0169* sen0169_init(direct_memory_access* dma, uint32_t channel);
 
 void sen0169_destroy(sen0169* sen0169);
 
 uint32_t sen0169_get_channel(sen0169* sen0169);
 
 void sen0169_set_channel(sen0169* sen0169, uint32_t channel);
-
-float sen0169_get_offset(sen0169* sen0169);
-
-void sen0169_set_offset(sen0169* sen0169, const float offset);
 
 unsigned int* sen0169_get_readings(sen0169* sen0169);
 
