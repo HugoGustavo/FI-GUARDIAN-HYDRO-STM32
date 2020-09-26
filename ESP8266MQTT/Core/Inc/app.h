@@ -38,6 +38,8 @@ void configure_dma(ADC_HandleTypeDef* hadc1);
 
 void configure_ds18b20(void);
 
+void configure_sen0161(void);
+
 void configure_sen0165(void);
 
 void configure_sen0169(void);

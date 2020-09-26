@@ -3,7 +3,7 @@
 sen0169* sen0169_init(direct_memory_access* dma, uint32_t channel){
 	sen0169* result 	= (sen0169*) malloc(sizeof(sen0169));
 	result->channel 	= channel;
-	for(register int i = 0; i < 40; i++) result->readings[i] = 0;
+	for(register int i = 0; i < 12; i++) result->readings[i] = 0;
 	result->index 		= 0;
 	result->dma 		= dma;
 	return result;

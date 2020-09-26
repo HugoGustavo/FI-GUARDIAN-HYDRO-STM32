@@ -59,7 +59,7 @@ void sen0237a_set_temperature_point_2(sen0237a* sen0237a, uint8_t temperature_po
 
 uint32_t sen0237a_get_current_temperature(sen0237a* sen0237a);
 
-void sen0237a_set_current_temperature(sen0237a* sen0237a, uint32_t current_temperature);
+void sen0237a_set_temperature(sen0237a* sen0237a, uint32_t current_temperature);
 
 direct_memory_access* sen0237a_get_dma(sen0237a* sen0237a);
 
