@@ -66,7 +66,7 @@ void sen0165_set_dma(sen0165* sen0165, direct_memory_access* dma){
 float sen0165_read(sen0165* sen0165){
 	if( sen0165 == NULL ) return 0.0;
 
-	float raw_adc = direct_memory_access_get_adc_value(sen0165->dma, sen0165->channel) ;
+	float raw_adc = direct_memory_access_get_adc_value(sen0165->dma, sen0165->channel);
 	sen0165->readings[sen0165->index] = raw_adc;
 	sen0165->index = ( sen0165->index + 1 ) % 12;
 
@@ -77,31 +77,29 @@ float sen0165_read(sen0165* sen0165){
 float sen0165_average(sen0165* sen0165){
 	if( sen0165 == NULL ) return 0.0;
 
-	long amount = 0;
-	if( sen0165->index < 5 ){
-		for(register unsigned int i = 0; i < sen0165->index; i++ ){
-			amount += sen0165->readings[i];
-		}
-		return (float) (amount / sen0165->index);
-	}
-
+	unsigned int amount = 0;
+	unsigned int count = 0;
 	unsigned int maximum, minimum;
+
 	if( sen0165->readings[0] < sen0165->readings[1] ){
 		minimum = sen0165->readings[0]; maximum = sen0165->readings[1];
 	} else {
 		minimum = sen0165->readings[1]; maximum = sen0165->readings[0];
 	}
 
-	for(register unsigned int i=2; i < sen0165->index; i++){
-		if( sen0165->readings[i] < minimum) {
+	for(register unsigned int i=2; i < 12; i++){
+		if( sen0165->readings[i] == 0 ) continue;
+
+		if( sen0165->readings[i] < minimum ) {
 			amount += minimum; minimum = sen0165->readings[i];
 	    } else if( sen0165->readings[i] > maximum ) {
 	    	amount += maximum; maximum = sen0165->readings[i];
 	    } else {
 		    amount += sen0165->readings[i];
 	    }
+		count++;
 	}
 
-	float average = (float) ( amount / (sen0165->index-2) );
+	float average = count == 0 ? 0 : (float) ( amount / count );
 	return average;
 }

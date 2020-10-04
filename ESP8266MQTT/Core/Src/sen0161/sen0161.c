@@ -66,8 +66,8 @@ float sen0161_read(sen0161* sen0161){
 	**********************************************************************************************************/
 
 	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel);
-	sen0161->readings[sen0161->index] = raw_adc;
-	sen0161->index = ( sen0161->index + 1 ) % 12;
+	sen0161->readings[sen0161->index++] = raw_adc;
+	sen0161->index = sen0161->index % 12;
 
 	float voltage = sen0161_average(sen0161) * 5.0 / 4096.0;
 	float alpha = -122.323929;
@@ -79,31 +79,29 @@ float sen0161_read(sen0161* sen0161){
 float sen0161_average(sen0161* sen0161){
 	if( sen0161 == NULL ) return 0.0;
 
-	long amount = 0;
-	if( sen0161->index < 5 ){
-		for(register unsigned int i = 0; i < sen0161->index; i++ ){
-			amount += sen0161->readings[i];
-		}
-		return (float) (amount / sen0161->index);
-	}
-
+	unsigned int amount = 0;
+	unsigned int count = 0;
 	unsigned int maximum, minimum;
+
 	if( sen0161->readings[0] < sen0161->readings[1] ){
 		minimum = sen0161->readings[0]; maximum = sen0161->readings[1];
 	} else {
 		minimum = sen0161->readings[1]; maximum = sen0161->readings[0];
 	}
 
-	for(register unsigned int i=2; i < sen0161->index; i++){
-		if( sen0161->readings[i] < minimum) {
+	for(register unsigned int i=2; i < 12; i++){
+		if( sen0161->readings[i] == 0 ) continue;
+
+		if( sen0161->readings[i] < minimum ) {
 			amount += minimum; minimum = sen0161->readings[i];
 	    } else if( sen0161->readings[i] > maximum ) {
 	    	amount += maximum; maximum = sen0161->readings[i];
 	    } else {
 		    amount += sen0161->readings[i];
 	    }
+		count++;
 	}
 
-	float average = (float) ( amount / (sen0161->index-2) );
+	float average = count == 0 ? 0 : (float) ( amount / count );
 	return average;
 }
