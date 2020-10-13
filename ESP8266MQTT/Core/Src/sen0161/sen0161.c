@@ -1,17 +1,15 @@
 #include <sen0161/sen0161.h>
 
-sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel){
+sen0161* sen0161_init(uint32_t channel){
 	sen0161* result = (sen0161*) malloc(sizeof(sen0161));
 	result->channel = channel;
 	for(register int i = 0; i < 12; i++) result->readings[i] = 0;
 	result->index = 0;
-	result->dma = dma;
 	return result;
 }
 
 void sen0161_destroy(sen0161* sen0161){
 	if( sen0161 == NULL ) return;
-	sen0161->dma = NULL;
 	free(sen0161);
 	sen0161 = NULL;
 }
@@ -44,15 +42,6 @@ void sen0161_set_index(sen0161* sen0161, const unsigned int index){
 	sen0161->index = index;
 }
 
-direct_memory_access* sen0161_get_dma(sen0161* sen0161){
-	return sen0161 == NULL ? NULL : sen0161->dma;
-}
-
-void sen0161_set_dma(sen0161* sen0161, direct_memory_access* dma){
-	if( sen0161 == NULL ) return;
-	sen0161->dma = dma;
-}
-
 float sen0161_read(sen0161* sen0161){
 	if( sen0161 == NULL ) return 0.0;
 
@@ -65,7 +54,8 @@ float sen0161_read(sen0161* sen0161){
 		float beta = ph_1 - ( alpha*voltage_1 );
 	**********************************************************************************************************/
 
-	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel);
+	float raw_adc = stm32_util_read_analog(sen0161->channel);
+	return raw_adc * 5.0 / 4096.0;
 	sen0161->readings[sen0161->index++] = raw_adc;
 	sen0161->index = sen0161->index % 12;
 

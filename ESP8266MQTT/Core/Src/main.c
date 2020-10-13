@@ -20,7 +20,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "app.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -42,13 +41,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim6;
-DMA_HandleTypeDef hdma_tim6_up;
 
 UART_HandleTypeDef huart2;
 
@@ -59,7 +55,6 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -101,7 +96,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
   MX_USART2_UART_Init();
@@ -110,15 +104,12 @@ int main(void)
 
   /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  app_init(&hadc1);
-  while (1){
-	  app_measure();
-	  app_send();
-	  app_wait();
-  }
-  /* USER CODE END 3 */
+  app_init();
+    while (1){
+  	  app_measure();
+    	  app_send();
+    	  app_wait();
+    }
 }
 
 /**
@@ -195,80 +186,66 @@ static void MX_ADC1_Init(void)
 
   /* USER CODE END ADC1_Init 0 */
 
-  ADC_ChannelConfTypeDef sConfig = {0};
+  LL_ADC_InitTypeDef ADC_InitStruct = {0};
+  LL_ADC_REG_InitTypeDef ADC_REG_InitStruct = {0};
+  LL_ADC_CommonInitTypeDef ADC_CommonInitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* Peripheral clock enable */
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_ADC);
+  
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
+  /**ADC1 GPIO Configuration  
+  PC0   ------> ADC1_IN1
+  PC1   ------> ADC1_IN2
+  PC2   ------> ADC1_IN3
+  PA7   ------> ADC1_IN12 
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_2;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_7;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* ADC1 interrupt Init */
+  NVIC_SetPriority(ADC1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),1, 0));
+  NVIC_EnableIRQ(ADC1_IRQn);
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
   /** Common config 
   */
-  hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfDiscConversion = 1;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.OversamplingMode = DISABLE;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Regular Channel
+  ADC_InitStruct.Resolution = LL_ADC_RESOLUTION_12B;
+  ADC_InitStruct.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+  ADC_InitStruct.LowPowerMode = LL_ADC_LP_MODE_NONE;
+  LL_ADC_Init(ADC1, &ADC_InitStruct);
+  ADC_REG_InitStruct.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
+  ADC_REG_InitStruct.SequencerLength = LL_ADC_REG_SEQ_SCAN_DISABLE;
+  ADC_REG_InitStruct.SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+  ADC_REG_InitStruct.ContinuousMode = LL_ADC_REG_CONV_CONTINUOUS;
+  ADC_REG_InitStruct.DMATransfer = LL_ADC_REG_DMA_TRANSFER_NONE;
+  ADC_REG_InitStruct.Overrun = LL_ADC_REG_OVR_DATA_PRESERVED;
+  LL_ADC_REG_Init(ADC1, &ADC_REG_InitStruct);
+  LL_ADC_DisableIT_EOC(ADC1);
+  LL_ADC_DisableIT_EOS(ADC1);
+  LL_ADC_DisableDeepPowerDown(ADC1);
+  LL_ADC_EnableInternalRegulator(ADC1);
+  ADC_CommonInitStruct.CommonClock = LL_ADC_CLOCK_ASYNC_DIV1;
+  LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(ADC1), &ADC_CommonInitStruct);
+  /** Configure Regular Channel 
   */
-  sConfig.Channel = ADC_CHANNEL_1;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1, LL_ADC_CHANNEL_1);
+  LL_ADC_SetChannelSamplingTime(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SAMPLINGTIME_2CYCLES_5);
+  LL_ADC_SetChannelSingleDiff(ADC1, LL_ADC_CHANNEL_1, LL_ADC_SINGLE_ENDED);
   /* USER CODE BEGIN ADC1_Init 2 */
-  sConfig.Channel = ADC_CHANNEL_2;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-	Error_Handler();
-  }
 
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-	Error_Handler();
-  }
-
-  sConfig.Channel = ADC_CHANNEL_12;
-  sConfig.Rank = ADC_REGULAR_RANK_12;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-	Error_Handler();
-  }
-
-  /* USER CODE END ADC1_Init 2 */
   /* USER CODE END ADC1_Init 2 */
 
 }
@@ -340,8 +317,8 @@ static void MX_TIM6_Init(void)
   htim6.Init.Prescaler = 83;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 4200;
-    htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1; // Adicionada
-  //htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     Error_Handler();
   }
@@ -389,25 +366,6 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
-
-}
-
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 1, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 

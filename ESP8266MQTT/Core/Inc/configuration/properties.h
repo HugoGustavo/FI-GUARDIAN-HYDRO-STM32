@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "stm32l4xx_hal.h"
-#include "stm32l4xx_hal_adc.h"
+#include "stm32l4xx_ll_adc.h"
 #include "stm32l4xx_hal_gpio.h"
+
 
 
 

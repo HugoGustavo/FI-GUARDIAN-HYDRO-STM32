@@ -40,7 +40,7 @@ char*            		SEN0161_PROPERTIES_LABEL									= (char*) 			"ph";
 
 
 /*--------------------------------------------------- BEGIN SEN0165 -------------------------------------------------------------------------------------------------------------------------*/
-uint32_t      			SEN0165_PROPERTIES_PIN                                      = (uint32_t)		ADC_CHANNEL_3;	// ADC_CHANNEL_3;
+uint32_t      			SEN0165_PROPERTIES_PIN                                      = (uint32_t)		LL_ADC_CHANNEL_3;	// ADC_CHANNEL_3;
 float					SEN0165_PROPERTIES_OFFSET									= (float) 			-2206.375;
 char*            		SEN0165_PROPERTIES_LABEL									= (char*) 			"orp";
 /*---------------------------------------------------- END SEN0165 --------------------------------------------------------------------------------------------------------------------------*/
@@ -49,7 +49,7 @@ char*            		SEN0165_PROPERTIES_LABEL									= (char*) 			"orp";
 
 
 /*--------------------------------------------------- BEGIN SEN0169 -------------------------------------------------------------------------------------------------------------------------*/
-uint32_t      			SEN0169_PROPERTIES_PIN                                      = (uint32_t)		ADC_CHANNEL_2;	// ADC_CHANNEL_2;
+uint32_t      			SEN0169_PROPERTIES_PIN                                      = (uint32_t)		LL_ADC_CHANNEL_2;	// ADC_CHANNEL_2;
 char*            		SEN0169_PROPERTIES_LABEL									= (char*) 			"ph";
 /*---------------------------------------------------- END SEN0169 --------------------------------------------------------------------------------------------------------------------------*/
 
@@ -57,7 +57,7 @@ char*            		SEN0169_PROPERTIES_LABEL									= (char*) 			"ph";
 
 
 /*--------------------------------------------------- BEGIN SEN0189 -------------------------------------------------------------------------------------------------------------------------*/
-uint32_t      			SEN0189_PROPERTIES_PIN                                      = (uint32_t)		ADC_CHANNEL_1;	// ADC_CHANNEL_1;
+uint32_t      			SEN0189_PROPERTIES_PIN                                      = (uint32_t)		LL_ADC_CHANNEL_1;	// ADC_CHANNEL_1;
 char*                   SEN0189_PROPERTIES_LABEL									= (char*) 			"turbidity";
 /*---------------------------------------------------- END SEN0189 --------------------------------------------------------------------------------------------------------------------------*/
 
@@ -65,7 +65,7 @@ char*                   SEN0189_PROPERTIES_LABEL									= (char*) 			"turbidity
 
 
 /*--------------------------------------------------- BEGIN SEN0237 -------------------------------------------------------------------------------------------------------------------------*/
-uint32_t      			SEN0237A_PROPERTIES_PIN                                    	= (uint32_t)        ADC_CHANNEL_12;	// ADC_CHANNEL_12;
+uint32_t      			SEN0237A_PROPERTIES_PIN                                    	= (uint32_t)        LL_ADC_CHANNEL_12;	// ADC_CHANNEL_12;
 char					SEN0237A_PROPERTIES_IS_MODE_CALIBRATION						= (char)            0x00;			// 0x00 is False, any other value is True
 char                    SEN0237A_PROPERTIES_POINTS_CALIBRATION                  	= (char)            0x01;			// Single-point calibration = 0x01, Two-point calibration = 0x02
 uint32_t				SEN0237A_PROPERTIES_VOLTAGE_POINT_1							= (uint32_t)        3964.84f;
