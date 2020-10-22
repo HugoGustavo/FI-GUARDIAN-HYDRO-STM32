@@ -21,7 +21,6 @@ RM := rm -rf
 -include Core/Src/mqtt_client/subdir.mk
 -include Core/Src/esp8266/subdir.mk
 -include Core/Src/ds18b20/subdir.mk
--include Core/Src/dma/subdir.mk
 -include Core/Src/configuration/subdir.mk
 -include Core/Src/subdir.mk
 -include subdir.mk

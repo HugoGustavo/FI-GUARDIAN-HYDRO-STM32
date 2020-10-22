@@ -5,23 +5,17 @@
 #include <stdlib.h>
 #include <util/stm32_util.h>
 #include "stm32l4xx_hal.h"
-#include <dma/direct_memory_access.h>
 
 typedef struct __attribute__((__packed__)) sen0165 {
 	uint32_t				channel;
 	float 					offset;
 	unsigned int 			readings[12];
 	unsigned int 			index;
-	direct_memory_access*	dma;
 } sen0165;
 
-sen0165* sen0165_init(direct_memory_access* dma, uint32_t channel, float offset);
+sen0165* sen0165_init(uint32_t channel, float offset);
 
 void sen0165_destroy(sen0165* sen0165);
-
-ADC_HandleTypeDef* sen0165_get_pin(sen0165* sen0165);
-
-void sen0165_set_pin(sen0165* sen0165, ADC_HandleTypeDef* pin);
 
 uint32_t sen0165_get_channel(sen0165* sen0165);
 
@@ -38,10 +32,6 @@ void sen0165_set_readings(sen0165* sen0165, unsigned int readings[]);
 unsigned int sen0165_get_index(sen0165* sen0165);
 
 void sen0165_set_index(sen0165* sen0165, const unsigned int index);
-
-direct_memory_access* sen0165_get_dma(sen0165* sen0165);
-
-void sen0165_set_dma(sen0165* sen0165, direct_memory_access* dma);
 
 float sen0165_read(sen0165* sen0165);
 

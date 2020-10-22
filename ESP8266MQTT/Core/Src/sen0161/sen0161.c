@@ -1,17 +1,15 @@
 #include <sen0161/sen0161.h>
 
-sen0161* sen0161_init(direct_memory_access* dma, uint32_t channel){
+sen0161* sen0161_init(uint32_t channel){
 	sen0161* result = (sen0161*) malloc(sizeof(sen0161));
 	result->channel = channel;
 	for(register int i = 0; i < 12; i++) result->readings[i] = 0;
 	result->index = 0;
-	result->dma = dma;
 	return result;
 }
 
 void sen0161_destroy(sen0161* sen0161){
 	if( sen0161 == NULL ) return;
-	sen0161->dma = NULL;
 	free(sen0161);
 	sen0161 = NULL;
 }
@@ -44,36 +42,36 @@ void sen0161_set_index(sen0161* sen0161, const unsigned int index){
 	sen0161->index = index;
 }
 
-direct_memory_access* sen0161_get_dma(sen0161* sen0161){
-	return sen0161 == NULL ? NULL : sen0161->dma;
-}
-
-void sen0161_set_dma(sen0161* sen0161, direct_memory_access* dma){
-	if( sen0161 == NULL ) return;
-	sen0161->dma = dma;
-}
-
 float sen0161_read(sen0161* sen0161){
 	if( sen0161 == NULL ) return 0.0;
 
 	/******************************** Find the linear coefficients ********************************************
-		float ph_1 = 1.0;
-		float voltage_1 = 4.5602;
-		float ph_2 = 13.0;
-		float voltage_2 = 4.4621;
-		float alpha = (ph_1 - ph_2) / ( voltage_1 - voltage_2 );
-		float beta = ph_1 - ( alpha*voltage_1 );
-	**********************************************************************************************************/
+		Placa sem bateria
+		ph 01 = 0.00000000 V
+		ph 07 = 1.06933594 V
+		ph 14 = 4.67895508 V
 
-	float raw_adc = direct_memory_access_get_adc_value(sen0161->dma, sen0161->channel);
-	sen0161->readings[sen0161->index++] = raw_adc;
-	sen0161->index = sen0161->index % 12;
+		Placa com bateria
 
-	float voltage = sen0161_average(sen0161) * 5.0 / 4096.0;
-	float alpha = -122.323929;
-	float beta = 558.821594;
+		ph 01 = 0 V
+		ph 07 = 1.53198242 V
+		ph 14 = 4.62158203 V
 
-	return alpha * voltage + beta;
+		Utilizou-se ajuste lagrange
+	 **********************************************************************************************************/
+
+	float raw_adc = stm32_util_read_analog(sen0161->channel);
+	sen0161->readings[sen0161->index] = raw_adc;
+	float voltagem 	= sen0161_average(sen0161) * 5.0 / 4096.0;
+	sen0161->index = (sen0161->index + 1) % 12;
+
+	// Utilizou-se ajuste de lagrange
+	float a0 = +1.00000000;
+	float a1 = +4.46371788;
+	float a2 = -0.35719982;
+	float ph = a0 + ( a1 * voltagem ) + ( a2 * pow(voltagem, 2) );
+
+	return ph;
 }
 
 float sen0161_average(sen0161* sen0161){

@@ -6509,7 +6509,7 @@ __STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_ADRDY(ADC_TypeDef *ADCx)
 
 /**
   * @brief  Get flag ADC group regular end of unitary conversion.
-  * @rmtoll ISR      EOC            LL_ADC_IsActiveFlag_EOC
+  * @rmtoll ISR      EOC            LL_ADC_IsActiveF'lag_EOC
   * @param  ADCx ADC instance
   * @retval State of bit (1 or 0).
   */

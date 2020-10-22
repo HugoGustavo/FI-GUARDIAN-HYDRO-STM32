@@ -19,7 +19,6 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Core/Src \
 Core/Src/configuration \
-Core/Src/dma \
 Core/Src/ds18b20 \
 Core/Src/esp8266 \
 Core/Src/mqtt_client \

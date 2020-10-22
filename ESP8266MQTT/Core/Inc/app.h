@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <dma/direct_memory_access.h>
 #include <stm32l4xx_hal.h>
 #include <util/dwt_delay.h>
 #include <esp8266/esp8266.h>
@@ -24,7 +23,7 @@
 #include <mqtt_client/mqtt_client.h>
 #include <configuration/properties.h>
 
-void app_init(ADC_HandleTypeDef* hadc1);
+void app_init();
 
 void configure_init_screen(void);
 
@@ -33,8 +32,6 @@ void configure_delay(void);
 void configure_ssd1306();
 
 void configure_esp(void);
-
-void configure_dma(ADC_HandleTypeDef* hadc1);
 
 void configure_ds18b20(void);
 

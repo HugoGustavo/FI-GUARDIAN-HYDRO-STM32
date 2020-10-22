@@ -2,7 +2,6 @@
 
 /* VARIAVIES PRIVADAS */
 esp8266* 				esp 				= NULL;
-direct_memory_access*	dma					= NULL;
 mqtt_client*			mqtt 				= NULL;
 ds18b20*				sensor_ds18b20		= NULL;
 sen0161*				sensor_sen0161		= NULL;
@@ -12,12 +11,11 @@ sen0189*				sensor_sen0189		= NULL;
 sen0237a*				sensor_sen0237a		= NULL;
 char*					message				= NULL;
 
-void app_init(ADC_HandleTypeDef* hadc){
+void app_init(){
 	configure_delay();
 	configure_ssd1306();
 	configure_init_screen();
 	configure_esp();
-	configure_dma(hadc);
 
 	configure_ds18b20();
 	configure_sen0161();
@@ -55,14 +53,6 @@ void configure_esp(void){
 	esp8266_createTCP(esp, (uint8_t*) SMART_WATER_PROPERTIES_API_GATEWAY_HOST, SMART_WATER_PROPERTIES_API_GATEWAY_PORT);
 }
 
-void configure_dma(ADC_HandleTypeDef* hadc){
-	if( hadc != NULL ){
-		logger_info(logger_get_instance(), (char*) "Configurando DMA");
-		dma = direct_memory_access_init(hadc, 4);
-		direct_memory_access_start(dma);
-	}
-}
-
 void configure_ds18b20(void){
 	if( DS18B20_PROPERTIES_PORT != NULL ){
 		logger_info(logger_get_instance(), (char*) "Configurando DS18B20");
@@ -73,21 +63,21 @@ void configure_ds18b20(void){
 void configure_sen0161(void){
 	if( SEN0161_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0161");
-		sensor_sen0161 = sen0161_init(dma, SEN0161_PROPERTIES_PIN);
+		sensor_sen0161 = sen0161_init(SEN0161_PROPERTIES_PIN);
 	}
 }
 
 void configure_sen0165(void){
 	if( SEN0165_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0165");
-		sensor_sen0165 = sen0165_init(dma, SEN0165_PROPERTIES_PIN, SEN0165_PROPERTIES_OFFSET);
+		sensor_sen0165 = sen0165_init(SEN0165_PROPERTIES_PIN, SEN0165_PROPERTIES_OFFSET);
 	}
 }
 
 void configure_sen0169(void){
 	if( SEN0169_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0169");
-		sensor_sen0169 = sen0169_init(dma, SEN0169_PROPERTIES_PIN);
+		sensor_sen0169 = sen0169_init(SEN0169_PROPERTIES_PIN);
 	}
 
 }
@@ -95,14 +85,14 @@ void configure_sen0169(void){
 void configure_sen0189(void){
 	if( SEN0189_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0189");
-		sensor_sen0189 = sen0189_init(dma, SEN0189_PROPERTIES_PIN);
+		sensor_sen0189 = sen0189_init(SEN0189_PROPERTIES_PIN);
 	}
 }
 
 void configure_sen0237a(void){
 	if( SEN0237A_PROPERTIES_PIN != 0 ){
 		logger_info(logger_get_instance(), (char*) "Configurando SEN0237A");
-		sensor_sen0237a = sen0237a_init(dma,
+		sensor_sen0237a = sen0237a_init(
 				SEN0237A_PROPERTIES_PIN,
 				SEN0237A_PROPERTIES_IS_MODE_CALIBRATION,
 				SEN0237A_PROPERTIES_POINTS_CALIBRATION,
@@ -238,7 +228,6 @@ void app_send(void){
 
 void app_wait(void){
 	stm32_util_delay_in_seconds(SMART_WATER_PROPERTIES_MEASUREMENT_CYCLE_IN_SECONDS);
-	direct_memory_access_restart(dma);
 }
 
 void app_destroy(void){
